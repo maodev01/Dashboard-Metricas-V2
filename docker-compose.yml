@@ -1,0 +1,107 @@
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: metrics_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: metrics_db
+      POSTGRES_USER: metrics_user
+      POSTGRES_PASSWORD: metrics_password_2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - metrics_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metrics_user -d metrics_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: metrics_backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://metrics_user:metrics_password_2024@db:5432/metrics_db
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - NASA_API_KEY=${NASA_API_KEY:-DEMO_KEY}
+      - DEBUG=False
+      - ALLOWED_ORIGINS=["http://localhost","http://localhost:80","http://localhost:3000"]
+      - COLLECTION_HOUR=0
+      - COLLECTION_MINUTE=0
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - metrics_network
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+    working_dir: /app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Nginx
+  frontend:
+    image: nginx:alpine
+    container_name: metrics_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - metrics_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin para administración de base de datos (opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: metrics_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@metrics.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - metrics_network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+    driver: local
+  backend_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  metrics_network:
+    driver: bridge
