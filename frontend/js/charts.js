@@ -7,10 +7,17 @@ let cryptoChart = null;
 function createWeatherChart(data) {
     const ctx = document.getElementById('weatherChart');
     
-    if (!data || data.length === 0) {
-        ctx.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos disponibles</p>';
+    if (!ctx) {
+        console.error('Canvas weatherChart no encontrado');
         return;
     }
+
+    if (!data || data.length === 0) {
+        ctx.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos históricos disponibles. Espera unos minutos para que se acumulen datos.</p>';
+        return;
+    }
+
+    console.log('Creando gráfico de clima con', data.length, 'puntos');
 
     // Destruir gráfico anterior si existe
     if (weatherChart) {
@@ -18,7 +25,10 @@ function createWeatherChart(data) {
     }
 
     // Preparar datos
-    const labels = data.map(d => formatDate(d.date));
+    const labels = data.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    });
     const temperatures = data.map(d => d.temperature);
     const humidity = data.map(d => d.humidity);
     const windSpeed = data.map(d => d.wind_speed);
@@ -32,43 +42,84 @@ function createWeatherChart(data) {
                 {
                     label: 'Temperatura (°C)',
                     data: temperatures,
-                    borderColor: CONFIG.CHART_COLORS.danger,
-                    backgroundColor: CONFIG.CHART_COLORS.dangerLight,
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
                     yAxisID: 'y',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
                 },
                 {
                     label: 'Humedad (%)',
                     data: humidity,
-                    borderColor: CONFIG.CHART_COLORS.info,
-                    backgroundColor: CONFIG.CHART_COLORS.infoLight,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     yAxisID: 'y1',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
                 },
                 {
                     label: 'Viento (m/s)',
                     data: windSpeed,
-                    borderColor: CONFIG.CHART_COLORS.success,
-                    backgroundColor: CONFIG.CHART_COLORS.successLight,
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
                     yAxisID: 'y1',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
                 }
             ]
         },
         options: {
-            ...CONFIG.CHART_OPTIONS,
+            responsive: true,
+            maintainAspectRatio: true,
             interaction: {
                 mode: 'index',
                 intersect: false,
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12
+                },
+                title: {
+                    display: true,
+                    text: 'Evolución de Condiciones Climáticas',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        bottom: 20
+                    }
+                }
             },
             scales: {
                 x: {
                     display: true,
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 },
                 y: {
@@ -77,7 +128,10 @@ function createWeatherChart(data) {
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Temperatura (°C)'
+                        text: 'Temperatura (°C)',
+                        font: {
+                            weight: 'bold'
+                        }
                     },
                     grid: {
                         color: 'rgba(0, 0, 0, 0.05)'
@@ -89,7 +143,10 @@ function createWeatherChart(data) {
                     position: 'right',
                     title: {
                         display: true,
-                        text: 'Humedad (%) / Viento (m/s)'
+                        text: 'Humedad (%) / Viento (m/s)',
+                        font: {
+                            weight: 'bold'
+                        }
                     },
                     grid: {
                         drawOnChartArea: false,
@@ -98,16 +155,25 @@ function createWeatherChart(data) {
             }
         }
     });
+
+    console.log('✅ Gráfico de clima creado exitosamente');
 }
 
 // Función para crear/actualizar gráfico de criptomonedas
 function createCryptoChart(data) {
     const ctx = document.getElementById('cryptoChart');
     
-    if (!data || data.length === 0) {
-        ctx.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos disponibles</p>';
+    if (!ctx) {
+        console.error('Canvas cryptoChart no encontrado');
         return;
     }
+
+    if (!data || data.length === 0) {
+        ctx.parentElement.innerHTML = '<p class="text-center text-gray-500 py-8">No hay datos históricos disponibles. Espera unos minutos para que se acumulen datos.</p>';
+        return;
+    }
+
+    console.log('Creando gráfico de crypto con', data.length, 'puntos');
 
     // Destruir gráfico anterior si existe
     if (cryptoChart) {
@@ -123,31 +189,71 @@ function createCryptoChart(data) {
         groupedData[d.symbol].push(d);
     });
 
-    // Obtener fechas únicas
-    const labels = [...new Set(data.map(d => formatDate(d.date)))].sort();
+    console.log('Símbolos encontrados:', Object.keys(groupedData));
 
-    // Colores para diferentes criptomonedas
-    const colors = [
-        { border: CONFIG.CHART_COLORS.warning, bg: CONFIG.CHART_COLORS.warningLight },
-        { border: CONFIG.CHART_COLORS.info, bg: CONFIG.CHART_COLORS.infoLight },
-        { border: CONFIG.CHART_COLORS.success, bg: CONFIG.CHART_COLORS.successLight },
-        { border: CONFIG.CHART_COLORS.primary, bg: CONFIG.CHART_COLORS.primaryLight },
-    ];
+    // Limitar a top 6 criptos por market cap rank
+    const topSymbols = Object.keys(groupedData)
+        .map(symbol => ({
+            symbol,
+            rank: Math.min(...groupedData[symbol].map(d => d.market_cap_rank || 999))
+        }))
+        .sort((a, b) => a.rank - b.rank)
+        .slice(0, 6)
+        .map(item => item.symbol);
 
-    // Crear datasets
-    const datasets = Object.keys(groupedData).map((symbol, index) => {
-        const prices = labels.map(label => {
-            const item = groupedData[symbol].find(d => formatDate(d.date) === label);
+    console.log('Top 6 símbolos para gráfico:', topSymbols);
+
+    // Obtener fechas únicas y ordenarlas
+    const allDates = data.map(d => new Date(d.date));
+    const uniqueDates = [...new Set(allDates.map(d => d.getTime()))]
+        .sort()
+        .map(timestamp => new Date(timestamp));
+    
+    const labels = uniqueDates.map(date => 
+        date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    );
+
+    // Colores específicos por cripto
+    const cryptoColors = {
+        'BTC': { border: 'rgb(242, 169, 0)', bg: 'rgba(242, 169, 0, 0.1)' },
+        'ETH': { border: 'rgb(98, 126, 234)', bg: 'rgba(98, 126, 234, 0.1)' },
+        'BNB': { border: 'rgb(243, 186, 47)', bg: 'rgba(243, 186, 47, 0.1)' },
+        'XRP': { border: 'rgb(35, 189, 238)', bg: 'rgba(35, 189, 238, 0.1)' },
+        'ADA': { border: 'rgb(0, 51, 173)', bg: 'rgba(0, 51, 173, 0.1)' },
+        'SOL': { border: 'rgb(220, 31, 255)', bg: 'rgba(220, 31, 255, 0.1)' }
+    };
+
+    // Crear datasets solo para top cryptos
+    const datasets = topSymbols.map((symbol) => {
+        const cryptoData = groupedData[symbol]
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        const prices = uniqueDates.map(targetDate => {
+            const item = cryptoData.find(d => {
+                const dataDate = new Date(d.date);
+                return Math.abs(dataDate - targetDate) < 60000; // 1 minuto de tolerancia
+            });
             return item ? item.current_price : null;
         });
+
+        const color = cryptoColors[symbol] || { 
+            border: `hsl(${Math.random() * 360}, 70%, 50%)`, 
+            bg: `hsla(${Math.random() * 360}, 70%, 50%, 0.1)` 
+        };
 
         return {
             label: symbol,
             data: prices,
-            borderColor: colors[index % colors.length].border,
-            backgroundColor: colors[index % colors.length].bg,
+            borderColor: color.border,
+            backgroundColor: color.bg,
+            borderWidth: 2,
             tension: 0.4,
-            fill: false
+            fill: false,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: color.border,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
         };
     });
 
@@ -159,32 +265,37 @@ function createCryptoChart(data) {
             datasets: datasets
         },
         options: {
-            ...CONFIG.CHART_OPTIONS,
-            scales: {
-                x: {
-                    display: true,
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Precio (USD)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + formatNumber(value, 2);
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                }
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                },
                 tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
@@ -192,53 +303,67 @@ function createCryptoChart(data) {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += formatCurrency(context.parsed.y, 'USD');
+                                label += new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                }).format(context.parsed.y);
                             }
                             return label;
                         }
                     }
+                },
+                title: {
+                    display: true,
+                    text: 'Evolución de Precios de Criptomonedas',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        bottom: 20
+                    }
                 }
-            }
-        }
-    });
-}
-
-// Función para crear gráfico de barras para comparación de criptos
-function createCryptoComparisonChart(data, containerId) {
-    const ctx = document.getElementById(containerId);
-    
-    if (!data || data.length === 0) return;
-
-    const labels = data.map(d => d.symbol);
-    const prices = data.map(d => d.current_price);
-    const changes = data.map(d => d.price_change_percentage_24h);
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Precio Actual (USD)',
-                    data: prices,
-                    backgroundColor: CONFIG.CHART_COLORS.primaryLight,
-                    borderColor: CONFIG.CHART_COLORS.primary,
-                    borderWidth: 2
-                }
-            ]
-        },
-        options: {
-            ...CONFIG.CHART_OPTIONS,
+            },
             scales: {
+                x: {
+                    display: true,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
                 y: {
-                    beginAtZero: true,
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Precio (USD)',
+                        font: {
+                            size: 13,
+                            weight: 'bold'
+                        }
+                    },
                     ticks: {
                         callback: function(value) {
-                            return '$' + formatNumber(value, 2);
+                            return '$' + value.toLocaleString('en-US');
+                        },
+                        font: {
+                            size: 11
                         }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     }
                 }
             }
         }
     });
+
+    console.log('✅ Gráfico de crypto creado exitosamente');
 }

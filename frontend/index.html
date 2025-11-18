@@ -34,30 +34,34 @@
 </head>
 <body class="bg-gray-50">
     
-    <!-- Header -->
-    <header class="gradient-bg text-white shadow-lg">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-chart-line text-4xl"></i>
-                    <div>
-                        <h1 class="text-3xl font-bold">Dashboard de Métricas</h1>
-                        <p class="text-purple-200">Clima, Criptomonedas y NASA APOD</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="refreshAllData()" class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition duration-200 flex items-center space-x-2">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Actualizar</span>
-                    </button>
-                    <button onclick="collectAllData()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200 flex items-center space-x-2">
-                        <i class="fas fa-download"></i>
-                        <span>Colectar Datos</span>
-                    </button>
+<header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-chart-line text-4xl"></i>
+                <div>
+                    <h1 class="text-3xl font-bold">Dashboard de Métricas</h1>
+                    <p class="text-purple-200">Clima, Criptomonedas y TfL Transport</p>
                 </div>
             </div>
+            <div class="flex items-center space-x-4">
+           
+                <div class="bg-white bg-opacity-20 px-4 py-2 rounded-lg flex items-center space-x-2">
+    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+    <span class="text-sm">Actualización cada 5 min</span>
+</div>
+                <button onclick="refreshAllData()" class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition duration-200 flex items-center space-x-2">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualizar</span>
+                </button>
+                <button onclick="collectAllData()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200 flex items-center space-x-2">
+                    <i class="fas fa-download"></i>
+                    <span>Colectar Datos</span>
+                </button>
+            </div>
         </div>
-    </header>
+    </div>
+</header>S
 
     <!-- Stats Summary -->
     <div class="container mx-auto px-4 py-8">
@@ -112,53 +116,57 @@
             </div>
         </div>
 
-        <!-- Crypto Section -->
+         <!-- Crypto Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 card-hover transition duration-300">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                     <i class="fab fa-bitcoin text-yellow-500 mr-3"></i>
-                    Criptomonedas
+                    Criptomonedas (Top 6)
                 </h2>
                 <div id="cryptoLoading" class="hidden">
                     <div class="w-8 h-8 border-4 border-gray-200 border-t-yellow-500 rounded-full loading"></div>
                 </div>
             </div>
             
-            <!-- Crypto Cards -->
-            <div id="cryptoCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Crypto Cards - Cambiado a grid de 3 columnas -->
+            <div id="cryptoCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <!-- Crypto cards will be inserted here -->
             </div>
             
             <!-- Crypto Chart -->
-            <div class="bg-gray-50 rounded-lg p-4">
+            <div class="bg-gray-50 rounded-lg p-4 mt-6">
                 <canvas id="cryptoChart"></canvas>
             </div>
         </div>
 
-        <!-- NASA APOD Section -->
+      <!-- TfL Transport Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8 card-hover transition duration-300">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-rocket text-red-500 mr-3"></i>
-                    NASA - Astronomy Picture of the Day
+                    <i class="fas fa-subway text-purple-500 mr-3"></i>
+                    Transport for London (Top 8 Líneas)
                 </h2>
-                <div id="nasaLoading" class="hidden">
-                    <div class="w-8 h-8 border-4 border-gray-200 border-t-red-500 rounded-full loading"></div>
+                <div class="flex items-center space-x-4">
+                    <div id="tflLoading" class="hidden">
+                        <div class="w-8 h-8 border-4 border-gray-200 border-t-purple-500 rounded-full loading"></div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <i class="fas fa-sync-alt text-purple-500"></i>
+                        <span>Actualización automática cada 5 min</span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- NASA APOD Content -->
-            <div id="nasaContent" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- NASA content will be inserted here -->
+            <div id="tflContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             </div>
         </div>
-    </div>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-12">
         <div class="container mx-auto px-4 text-center">
             <p class="mb-2">Dashboard de Métricas - Powered by FastAPI, Chart.js & Tailwind CSS</p>
-            <p class="text-gray-400 text-sm">APIs: OpenWeatherMap, CoinGecko, NASA</p>
+            <p class="text-gray-400 text-sm">APIs: OpenWeatherMap, CoinGecko, TFL Transport</p>
+            <p class="text-gray-400 text-sm">David Gomez - Nuevas Tecnologias de Desarrollo</p>
+
         </div>
     </footer>
 

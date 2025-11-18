@@ -16,10 +16,14 @@ class CryptoCollector:
     def collect_crypto(self, db: Session, crypto_ids: list = None) -> list[CryptoMetric]:
         """
         Colecta datos de criptomonedas y los guarda en la base de datos
-        Por defecto colecta: Bitcoin, Ethereum, Cardano, Solana
+        Por defecto colecta solo las 6 principales
         """
         if crypto_ids is None:
-            crypto_ids = ["bitcoin", "ethereum", "cardano", "solana"]
+            # Solo las 6 más importantes por market cap
+            crypto_ids = ["bitcoin", "ethereum", "cardano", "solana", "binancecoin", "ripple"]
+        
+        # Limitar a máximo 6 criptos
+        crypto_ids = crypto_ids[:6]
         
         metrics = []
         
@@ -81,7 +85,7 @@ class CryptoCollector:
             db.rollback()
             raise
     
-    def collect_top_cryptos(self, db: Session, limit: int = 10) -> list[CryptoMetric]:
+    def collect_top_cryptos(self, db: Session, limit: int = 6) -> list[CryptoMetric]:
         """
         Colecta las top N criptomonedas por market cap
         """

@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     
     # API Keys (todas gratuitas y abiertas)
     OPENWEATHER_API_KEY: Optional[str] = None  # Obtener en https://openweathermap.org/api
-    NASA_API_KEY: str = "DEMO_KEY"  # DEMO_KEY funciona pero tiene límites
     
     # Configuración de la aplicación
     APP_NAME: str = "Dashboard de Métricas"
@@ -24,8 +23,7 @@ class Settings(BaseSettings):
     DEFAULT_LON: float = -73.1198
     
     # Configuración de scheduler
-    COLLECTION_HOUR: int = 0  # Hora UTC para colectar datos (0 = medianoche)
-    COLLECTION_MINUTE: int = 0
+    COLLECTION_INTERVAL_MINUTES: int = 5  # Intervalo de colecta de métricas
     
     class Config:
         env_file = ".env"

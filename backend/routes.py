@@ -4,10 +4,10 @@ from sqlalchemy import and_, func
 from typing import List, Optional
 from datetime import datetime, date, timedelta
 from database import get_db
-from models import WeatherMetric, CryptoMetric, NasaMetric
+from models import WeatherMetric, CryptoMetric, TflMetric
 from collectors.weather import WeatherCollector
 from collectors.crypto import CryptoCollector
-from collectors.nasa import NasaCollector
+from collectors.tfl import TflCollector
 import logging
 
 logger = logging.getLogger(__name__)
@@ -94,15 +94,25 @@ async def collect_weather_now(
 
 @router.get("/crypto/latest")
 async def get_latest_crypto(db: Session = Depends(get_db)):
-    """Obtiene los registros más recientes de criptomonedas"""
-    # Obtener la fecha más reciente
-    latest_date = db.query(func.max(CryptoMetric.date)).scalar()
-    if not latest_date:
-        raise HTTPException(status_code=404, detail="No crypto data found")
+    from sqlalchemy import func
     
-    cryptos = db.query(CryptoMetric).filter(
-        func.date(CryptoMetric.date) == latest_date.date()
-    ).order_by(CryptoMetric.market_cap_rank.asc()).all()
+    # Subconsulta para obtener la fecha máxima por símbolo
+    subquery = db.query(
+        CryptoMetric.symbol,
+        func.max(CryptoMetric.date).label('max_date')
+    ).group_by(CryptoMetric.symbol).subquery()
+    
+    # Unir con la tabla principal para obtener los registros más recientes
+    cryptos = db.query(CryptoMetric).join(
+        subquery,
+        and_(
+            CryptoMetric.symbol == subquery.c.symbol,
+            CryptoMetric.date == subquery.c.max_date
+        )
+    ).order_by(CryptoMetric.market_cap_rank.asc()).limit(6).all()
+    
+    if not cryptos:
+        raise HTTPException(status_code=404, detail="No crypto data found")
     
     return [c.to_dict() for c in cryptos]
 
@@ -180,73 +190,100 @@ async def collect_crypto_now(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error collecting crypto data: {str(e)}")
 
-# ==================== NASA ENDPOINTS ====================
+# ==================== TFL ENDPOINTS ====================
 
-@router.get("/nasa/latest")
-async def get_latest_nasa(db: Session = Depends(get_db)):
-    """Obtiene el registro más reciente de NASA APOD"""
-    nasa = db.query(NasaMetric).order_by(NasaMetric.date.desc()).first()
-    if not nasa:
-        raise HTTPException(status_code=404, detail="No NASA data found")
-    return nasa.to_dict()
+@router.get("/tfl/latest")
+async def get_latest_tfl(db: Session = Depends(get_db)):
+    from sqlalchemy import func
+    
+    subquery = db.query(
+        TflMetric.line_id,
+        func.max(TflMetric.date).label('max_date')
+    ).group_by(TflMetric.line_id).subquery()
+    
+    # Obtener el registro completo de cada línea con su fecha más reciente
+    tfl_data = db.query(TflMetric).join(
+        subquery,
+        and_(
+            TflMetric.line_id == subquery.c.line_id,
+            TflMetric.date == subquery.c.max_date
+        )
+    ).order_by(TflMetric.line_name.asc()).all()
+    
+    if not tfl_data:
+        raise HTTPException(status_code=404, detail="No TfL data found")
+    
+    return [t.to_dict() for t in tfl_data]
 
-@router.get("/nasa/daily")
-async def get_daily_nasa(
-    target_date: Optional[str] = Query(None, description="Fecha en formato YYYY-MM-DD"),
+@router.get("/tfl/line/{line_id}")
+async def get_tfl_line(
+    line_id: str,
     db: Session = Depends(get_db)
 ):
-    """Obtiene NASA APOD para un día específico"""
-    if target_date:
-        apod_date = target_date
-    else:
-        apod_date = str(date.today())
+    """Obtiene el estado actual de una línea específica"""
+    tfl = db.query(TflMetric).filter(
+        TflMetric.line_id == line_id
+    ).order_by(TflMetric.date.desc()).first()
     
-    nasa = db.query(NasaMetric).filter(
-        NasaMetric.apod_date == apod_date
-    ).order_by(NasaMetric.date.desc()).first()
+    if not tfl:
+        raise HTTPException(status_code=404, detail=f"No data found for line {line_id}")
     
-    if not nasa:
-        raise HTTPException(status_code=404, detail=f"No NASA APOD data found for {apod_date}")
-    
-    return nasa.to_dict()
+    return tfl.to_dict()
 
-@router.get("/nasa/range")
-async def get_nasa_range(
+@router.get("/tfl/range")
+async def get_tfl_range(
     start_date: str = Query(..., description="Fecha inicial YYYY-MM-DD"),
     end_date: str = Query(..., description="Fecha final YYYY-MM-DD"),
+    line_id: Optional[str] = Query(None, description="ID de línea específica"),
     db: Session = Depends(get_db)
 ):
-    """Obtiene NASA APOD en un rango de fechas"""
+    """Obtiene datos de TfL en un rango de fechas"""
     try:
-        datetime.strptime(start_date, "%Y-%m-%d")
-        datetime.strptime(end_date, "%Y-%m-%d")
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     
-    nasa_data = db.query(NasaMetric).filter(
-        and_(
-            NasaMetric.apod_date >= start_date,
-            NasaMetric.apod_date <= end_date
-        )
-    ).order_by(NasaMetric.apod_date.asc()).all()
+    if end < start:
+        raise HTTPException(status_code=400, detail="end_date must be after start_date")
     
-    return [n.to_dict() for n in nasa_data]
+    query = db.query(TflMetric).filter(
+        and_(
+            TflMetric.date >= start,
+            TflMetric.date <= end
+        )
+    )
+    
+    if line_id:
+        query = query.filter(TflMetric.line_id == line_id)
+    
+    tfl_data = query.order_by(TflMetric.date.asc()).all()
+    
+    return [t.to_dict() for t in tfl_data]
 
-@router.post("/nasa/collect")
-async def collect_nasa_now(
-    apod_date: Optional[str] = Query(None, description="Fecha YYYY-MM-DD"),
-    db: Session = Depends(get_db)
-):
-    """Colecta datos de NASA APOD inmediatamente"""
+@router.post("/tfl/collect")
+async def collect_tfl_now(db: Session = Depends(get_db)):
+    """Colecta datos de TfL inmediatamente"""
     try:
-        collector = NasaCollector()
-        nasa = collector.collect_apod(db, apod_date)
+        collector = TflCollector()
+        tfl_data = collector.collect_line_status(db)
         return {
-            "message": "NASA APOD data collected successfully",
-            "data": nasa.to_dict()
+            "message": f"Collected status for {len(tfl_data)} TfL lines",
+            "data": [t.to_dict() for t in tfl_data]
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error collecting NASA data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error collecting TfL data: {str(e)}")
+
+@router.get("/tfl/bikes")
+async def get_bike_points():
+    """Obtiene información actual de BikePoints (no se guarda en DB)"""
+    try:
+        collector = TflCollector()
+        # No necesita db porque no guarda
+        bike_data = collector.collect_bike_points(None, limit=50)
+        return bike_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting bike points: {str(e)}")
 
 # ==================== STATS ENDPOINTS ====================
 
@@ -255,21 +292,21 @@ async def get_summary_stats(db: Session = Depends(get_db)):
     """Obtiene estadísticas resumidas de todas las métricas"""
     weather_count = db.query(func.count(WeatherMetric.id)).scalar()
     crypto_count = db.query(func.count(CryptoMetric.id)).scalar()
-    nasa_count = db.query(func.count(NasaMetric.id)).scalar()
+    tfl_count = db.query(func.count(TflMetric.id)).scalar()  # CAMBIO AQUÍ
     
     latest_weather = db.query(WeatherMetric).order_by(WeatherMetric.date.desc()).first()
     latest_crypto = db.query(CryptoMetric).order_by(CryptoMetric.date.desc()).first()
-    latest_nasa = db.query(NasaMetric).order_by(NasaMetric.date.desc()).first()
+    latest_tfl = db.query(TflMetric).order_by(TflMetric.date.desc()).first()  # CAMBIO AQUÍ
     
     return {
         "total_records": {
             "weather": weather_count,
             "crypto": crypto_count,
-            "nasa": nasa_count
+            "tfl": tfl_count  # CAMBIO AQUÍ
         },
         "latest_dates": {
             "weather": latest_weather.date.isoformat() if latest_weather else None,
             "crypto": latest_crypto.date.isoformat() if latest_crypto else None,
-            "nasa": latest_nasa.date.isoformat() if latest_nasa else None
+            "tfl": latest_tfl.date.isoformat() if latest_tfl else None  # CAMBIO AQUÍ
         }
     }

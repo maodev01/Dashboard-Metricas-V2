@@ -78,24 +78,27 @@ const API = {
         return await this.request(url, { method: 'POST' });
     },
 
-    // ==================== NASA ====================
-    async getLatestNasa() {
-        return await this.request('/nasa/latest');
+// ==================== TFL ====================
+    async getLatestTfl() {
+        return await this.request('/tfl/latest');
     },
 
-    async getDailyNasa(date) {
-        const query = date ? `?target_date=${date}` : '';
-        return await this.request(`/nasa/daily${query}`);
+    async getTflLine(lineId) {
+        return await this.request(`/tfl/line/${lineId}`);
     },
 
-    async getNasaRange(startDate, endDate) {
-        return await this.request(`/nasa/range?start_date=${startDate}&end_date=${endDate}`);
+    async getTflRange(startDate, endDate, lineId = null) {
+        let url = `/tfl/range?start_date=${startDate}&end_date=${endDate}`;
+        if (lineId) url += `&line_id=${lineId}`;
+        return await this.request(url);
     },
 
-    async collectNasa(date = null) {
-        let url = '/nasa/collect';
-        if (date) url += `?apod_date=${date}`;
-        return await this.request(url, { method: 'POST' });
+    async collectTfl() {
+        return await this.request('/tfl/collect', { method: 'POST' });
+    },
+
+    async getBikePoints() {
+        return await this.request('/tfl/bikes');
     },
 
     // ==================== STATS ====================
@@ -112,11 +115,10 @@ async function collectAllData() {
     try {
         showNotification('Colectando datos...', 'info');
         
-        // Colectar en paralelo
         const results = await Promise.allSettled([
             API.collectWeather(),
             API.collectCrypto(),
-            API.collectNasa()
+            API.collectTfl() 
         ]);
 
         const successful = results.filter(r => r.status === 'fulfilled').length;
@@ -130,7 +132,6 @@ async function collectAllData() {
             showNotification('Error al colectar datos', 'error');
         }
 
-        // Refrescar dashboard
         await refreshAllData();
 
     } catch (error) {
@@ -141,6 +142,7 @@ async function collectAllData() {
     }
 }
 
+let refreshLock = false;
 // Función para refrescar todos los datos
 async function refreshAllData() {
     const startDate = document.getElementById('startDate').value;
@@ -149,7 +151,7 @@ async function refreshAllData() {
     await Promise.all([
         loadWeatherData(startDate, endDate),
         loadCryptoData(startDate, endDate),
-        loadNasaData(),
+        loadTflData(),
         loadStats()
     ]);
 }

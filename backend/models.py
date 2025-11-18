@@ -78,30 +78,29 @@ class CryptoMetric(Base):
             "total_supply": self.total_supply
         }
 
-
-class NasaMetric(Base):
-    __tablename__ = "nasa_metrics"
+class TflMetric(Base):
+    __tablename__ = "tfl_metrics"
     
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.utcnow, index=True)
-    apod_date = Column(String(10))  # Fecha del APOD (YYYY-MM-DD)
-    title = Column(String(500))
-    explanation = Column(Text)
-    url = Column(String(1000))
-    hdurl = Column(String(1000), nullable=True)
-    media_type = Column(String(50))
-    copyright = Column(String(200), nullable=True)
+    line_id = Column(String(50), index=True)  # ej: "victoria", "central"
+    line_name = Column(String(100))
+    status_severity = Column(Integer)  # 0-20 (10=Good Service)
+    status_severity_description = Column(String(50))  # "Good Service", "Minor Delays"
+    reason = Column(Text, nullable=True)  # Razón del estado
+    disruption_category = Column(String(100), nullable=True)
+    closure_text = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
         return {
             "id": self.id,
             "date": self.date.isoformat() if self.date else None,
-            "apod_date": self.apod_date,
-            "title": self.title,
-            "explanation": self.explanation,
-            "url": self.url,
-            "hdurl": self.hdurl,
-            "media_type": self.media_type,
-            "copyright": self.copyright
+            "line_id": self.line_id,
+            "line_name": self.line_name,
+            "status_severity": self.status_severity,
+            "status_severity_description": self.status_severity_description,
+            "reason": self.reason,
+            "disruption_category": self.disruption_category,
+            "closure_text": self.closure_text
         }

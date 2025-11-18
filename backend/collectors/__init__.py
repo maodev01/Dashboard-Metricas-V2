@@ -1,10 +1,9 @@
 """
-Collectors package
-Módulos para colectar datos de diferentes APIs
+Init file for data collectors package.
 """
 
 from .weather import WeatherCollector
 from .crypto import CryptoCollector
-from .nasa import NasaCollector
+from .tfl import TflCollector
 
-__all__ = ['WeatherCollector', 'CryptoCollector', 'NasaCollector']
+__all__ = ['WeatherCollector', 'CryptoCollector', 'TflCollector']

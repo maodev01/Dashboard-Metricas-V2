@@ -37,17 +37,17 @@ async function loadStats() {
                 </div>
             </div>
             
-            <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white card-hover transition duration-300">
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white card-hover transition duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-red-100 text-sm font-medium">NASA APOD</p>
-                        <p class="text-3xl font-bold mt-2">${stats.total_records.nasa}</p>
-                        <p class="text-red-100 text-xs mt-2">
-                            ${stats.latest_dates.nasa ? 'Último: ' + formatDateTime(stats.latest_dates.nasa) : 'Sin datos'}
+                        <p class="text-purple-100 text-sm font-medium">TfL Transport</p>
+                        <p class="text-3xl font-bold mt-2">${stats.total_records.tfl}</p>
+                        <p class="text-purple-100 text-xs mt-2">
+                            ${stats.latest_dates.tfl ? 'Último: ' + formatDateTime(stats.latest_dates.tfl) : 'Sin datos'}
                         </p>
                     </div>
-                    <div class="bg-red-400 bg-opacity-30 rounded-full p-4">
-                        <i class="fas fa-rocket text-4xl"></i>
+                    <div class="bg-purple-400 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-subway text-4xl"></i>
                     </div>
                 </div>
             </div>
@@ -67,8 +67,9 @@ async function loadWeatherData(startDate, endDate) {
         const currentWeather = await API.getLatestWeather();
         displayCurrentWeather(currentWeather);
         
-        // Obtener datos históricos
+        // Obtener datos históricos para el gráfico
         const weatherData = await API.getWeatherRange(startDate, endDate);
+        console.log('Weather data for chart:', weatherData.length);
         createWeatherChart(weatherData);
         
     } catch (error) {
@@ -151,10 +152,12 @@ async function loadCryptoData(startDate, endDate) {
     try {
         // Obtener datos actuales
         const currentCrypto = await API.getLatestCrypto();
+        console.log('Current crypto data:', currentCrypto);
         displayCryptoCards(currentCrypto);
         
-        // Obtener datos históricos
+        // Obtener datos históricos para el gráfico
         const cryptoData = await API.getCryptoRange(startDate, endDate);
+        console.log('Crypto data for chart:', cryptoData.length);
         createCryptoChart(cryptoData);
         
     } catch (error) {
@@ -169,54 +172,86 @@ function displayCryptoCards(data) {
     const cryptoCards = document.getElementById('cryptoCards');
     
     if (!data || data.length === 0) {
-        cryptoCards.innerHTML = '<p class="col-span-4 text-center text-gray-500">No hay datos disponibles</p>';
+        cryptoCards.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay datos disponibles</p>';
         return;
     }
     
-    cryptoCards.innerHTML = data.map(crypto => {
-        const isPositive = crypto.price_change_percentage_24h > 0;
+    console.log('Displaying crypto cards, total data:', data.length);
+    
+    // LIMITAR A 6 CRIPTOS EXACTOS, ordenados por market cap rank
+    const topCryptos = data
+        .sort((a, b) => a.market_cap_rank - b.market_cap_rank)
+        .slice(0, 6);
+    
+    console.log('Top 6 cryptos:', topCryptos.map(c => `${c.symbol}: $${c.current_price}`));
+    
+    // Limpiar contenedor
+    cryptoCards.innerHTML = '';
+    
+    // Crear cada tarjeta individualmente para evitar problemas de scope
+    topCryptos.forEach(cryptoData => {
+        const isPositive = cryptoData.price_change_percentage_24h > 0;
         const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
         const changeBg = isPositive ? 'bg-green-100' : 'bg-red-100';
         const changeIcon = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
         
-        return `
+        const cardHTML = `
             <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition duration-300">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center space-x-2">
                         <div class="bg-yellow-100 rounded-full p-2">
-                            <i class="fab fa-${getCryptoIcon(crypto.symbol)} text-yellow-600"></i>
+                            <i class="fab fa-${getCryptoIcon(cryptoData.symbol)} text-yellow-600"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-gray-800">${crypto.symbol}</p>
-                            <p class="text-xs text-gray-500">${crypto.name}</p>
+                            <p class="font-bold text-gray-800">${cryptoData.symbol}</p>
+                            <p class="text-xs text-gray-500">${cryptoData.name}</p>
                         </div>
                     </div>
                     <span class="text-xs ${changeBg} ${changeColor} px-2 py-1 rounded-full font-semibold">
-                        #${crypto.market_cap_rank}
+                        #${cryptoData.market_cap_rank}
                     </span>
                 </div>
                 
                 <div class="mb-3">
-                    <p class="text-2xl font-bold text-gray-800">${formatCurrency(crypto.current_price)}</p>
+                    <p class="text-2xl font-bold text-gray-800">${formatCurrency(cryptoData.current_price)}</p>
                     <div class="flex items-center mt-1 ${changeColor}">
                         <i class="fas ${changeIcon} text-xs mr-1"></i>
-                        <span class="text-sm font-semibold">${formatNumber(Math.abs(crypto.price_change_percentage_24h), 2)}%</span>
+                        <span class="text-sm font-semibold">${formatNumber(Math.abs(cryptoData.price_change_percentage_24h), 2)}%</span>
                     </div>
                 </div>
                 
                 <div class="border-t pt-3 space-y-1">
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Market Cap</span>
-                        <span class="font-semibold text-gray-700">${formatCurrency(crypto.market_cap, 'USD').slice(0, -3)}M</span>
+                        <span class="font-semibold text-gray-700">${formatMarketCap(cryptoData.market_cap)}</span>
                     </div>
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Volumen 24h</span>
-                        <span class="font-semibold text-gray-700">${formatCurrency(crypto.total_volume, 'USD').slice(0, -3)}M</span>
+                        <span class="font-semibold text-gray-700">${formatMarketCap(cryptoData.total_volume)}</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Alto/Bajo 24h</span>
+                        <span class="font-semibold text-gray-700">${formatCurrency(cryptoData.high_24h).substring(0, 6)}/${formatCurrency(cryptoData.low_24h).substring(0, 6)}</span>
                     </div>
                 </div>
             </div>
         `;
-    }).join('');
+        
+        cryptoCards.insertAdjacentHTML('beforeend', cardHTML);
+    });
+}
+
+function formatMarketCap(value) {
+    if (!value) return 'N/A';
+    if (value >= 1e12) {
+        return '$' + (value / 1e12).toFixed(2) + 'T';
+    } else if (value >= 1e9) {
+        return '$' + (value / 1e9).toFixed(2) + 'B';
+    } else if (value >= 1e6) {
+        return '$' + (value / 1e6).toFixed(2) + 'M';
+    } else {
+        return formatCurrency(value);
+    }
 }
 
 function getCryptoIcon(symbol) {
@@ -225,68 +260,137 @@ function getCryptoIcon(symbol) {
         'ETH': 'ethereum',
         'ADA': 'cardano',
         'SOL': 'solana',
-        'BNB': 'bnb'
+        'BNB': 'bnb',
+        'XRP': 'coins'
     };
     return icons[symbol] || 'coins';
 }
 
-// ==================== NASA SECTION ====================
-async function loadNasaData() {
-    const loading = document.getElementById('nasaLoading');
+// ==================== TFL SECTION ====================
+async function loadTflData() {
+    const loading = document.getElementById('tflLoading');
     loading.classList.remove('hidden');
     
     try {
-        const nasaData = await API.getLatestNasa();
-        displayNasaContent(nasaData);
+        const tflData = await API.getLatestTfl();
+        console.log('TfL data:', tflData);
+        displayTflStatus(tflData);
     } catch (error) {
-        console.error('Error loading NASA data:', error);
-        showNotification('Error al cargar datos de NASA', 'error');
+        console.error('Error loading TfL data:', error);
+        showNotification('Error al cargar datos de TfL', 'error');
     } finally {
         loading.classList.add('hidden');
     }
 }
 
-function displayNasaContent(data) {
-    const nasaContent = document.getElementById('nasaContent');
+function displayTflStatus(data) {
+    const tflContent = document.getElementById('tflContent');
     
-    if (!data) {
-        nasaContent.innerHTML = '<p class="col-span-2 text-center text-gray-500">No hay datos disponibles</p>';
+    if (!data || data.length === 0) {
+        tflContent.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay datos disponibles</p>';
         return;
     }
     
-    const mediaHtml = data.media_type === 'image' 
-        ? `<img src="${data.url}" alt="${data.title}" class="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition" onclick="window.open('${data.hdurl || data.url}', '_blank')">`
-        : `<iframe src="${data.url}" class="w-full h-full rounded-lg" frameborder="0" allowfullscreen></iframe>`;
+    console.log('Displaying TfL, total data:', data.length);
     
-    nasaContent.innerHTML = `
-        <div class="relative h-96 bg-black rounded-lg overflow-hidden">
-            ${mediaHtml}
-            ${data.copyright ? `<div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">© ${data.copyright}</div>` : ''}
-        </div>
+    // LIMITAR A 8 LÍNEAS EXACTAS, ordenar por problemas primero
+    const sortedData = data
+        .sort((a, b) => {
+            if (a.status_severity !== 10 && b.status_severity === 10) return -1;
+            if (a.status_severity === 10 && b.status_severity !== 10) return 1;
+            return a.status_severity - b.status_severity;
+        })
+        .slice(0, 8);
+    
+    console.log('Top 8 TfL lines:', sortedData.map(l => `${l.line_name}: ${l.status_severity_description}`));
+    
+    // Limpiar contenedor
+    tflContent.innerHTML = '';
+    
+    // Crear cada tarjeta individualmente
+    sortedData.forEach(lineData => {
+        const statusColor = getStatusColor(lineData.status_severity);
+        const statusIcon = getStatusIcon(lineData.status_severity);
         
-        <div class="space-y-4">
-            <div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">${data.title}</h3>
-                <p class="text-sm text-gray-500 mb-4">
-                    <i class="far fa-calendar mr-2"></i>${data.apod_date}
-                </p>
-                <p class="text-gray-700 leading-relaxed">${data.explanation}</p>
-            </div>
-            
-            <div class="flex space-x-3">
-                ${data.hdurl ? `
-                    <a href="${data.hdurl}" target="_blank" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition text-center flex items-center justify-center space-x-2">
-                        <i class="fas fa-expand"></i>
-                        <span>Ver HD</span>
-                    </a>
+        const cardHTML = `
+            <div class="bg-white border-l-4 ${statusColor.border} rounded-lg p-4 hover:shadow-lg transition duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="${statusColor.bg} rounded-full p-2">
+                            <i class="fas ${statusIcon} ${statusColor.text}"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800">${lineData.line_name}</h3>
+                            <p class="text-xs text-gray-500">${lineData.line_id}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs ${statusColor.badge} px-3 py-1 rounded-full font-semibold">
+                        ${lineData.status_severity_description}
+                    </span>
+                </div>
+                ${lineData.reason ? `
+                    <div class="mt-3 p-3 bg-gray-50 rounded">
+                        <p class="text-sm text-gray-700"><i class="fas fa-info-circle mr-2"></i>${lineData.reason}</p>
+                    </div>
                 ` : ''}
-                <a href="${data.url}" target="_blank" class="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-center flex items-center justify-center space-x-2">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>Abrir Original</span>
-                </a>
             </div>
-        </div>
-    `;
+        `;
+        
+        tflContent.insertAdjacentHTML('beforeend', cardHTML);
+    });
+}
+
+function getStatusColor(severity) {
+    if (severity === 10) {
+        return {
+            border: 'border-green-500',
+            bg: 'bg-green-100',
+            text: 'text-green-600',
+            badge: 'bg-green-100 text-green-800'
+        };
+    } else if (severity >= 6 && severity <= 9) {
+        return {
+            border: 'border-yellow-500',
+            bg: 'bg-yellow-100',
+            text: 'text-yellow-600',
+            badge: 'bg-yellow-100 text-yellow-800'
+        };
+    } else {
+        return {
+            border: 'border-red-500',
+            bg: 'bg-red-100',
+            text: 'text-red-600',
+            badge: 'bg-red-100 text-red-800'
+        };
+    }
+}
+
+function getStatusIcon(severity) {
+    if (severity === 10) return 'fa-check-circle';
+    if (severity >= 6) return 'fa-exclamation-triangle';
+    return 'fa-times-circle';
+}
+
+// ==================== AUTO-REFRESH ====================
+let autoRefreshInterval = null;
+
+function startAutoRefresh() {
+    if (CONFIG.AUTO_REFRESH_ENABLED) {
+        console.log(`🔄 Auto-refresh activado cada ${CONFIG.AUTO_REFRESH_INTERVAL / 1000} segundos`);
+        
+        autoRefreshInterval = setInterval(async () => {
+            console.log('🔄 Actualizando datos automáticamente...');
+            await refreshAllData();
+        }, CONFIG.AUTO_REFRESH_INTERVAL);
+    }
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        console.log('🛑 Auto-refresh detenido');
+    }
 }
 
 // ==================== EVENT HANDLERS ====================
@@ -311,11 +415,13 @@ function applyDateRange() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Inicializando Dashboard de Métricas...');
     
-    // Inicializar fechas
     initializeDates();
-    
-    // Cargar todos los datos
     await refreshAllData();
+    startAutoRefresh();
     
     console.log('Dashboard cargado exitosamente!');
+});
+
+window.addEventListener('beforeunload', () => {
+    stopAutoRefresh();
 });

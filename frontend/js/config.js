@@ -138,3 +138,7 @@ function initializeDates() {
     document.getElementById('startDate').value = formatDate(startDate);
     document.getElementById('endDate').value = formatDate(endDate);
 }
+
+// Configuración de auto-refresh
+CONFIG.AUTO_REFRESH_ENABLED = true;
+CONFIG.AUTO_REFRESH_INTERVAL = 300000; // 2 minutos en milisegundos

@@ -34,7 +34,7 @@
             │  ───────────────     │      │  ───────────       │
             │  • weather_metrics   │      │  • WeatherAPI      │
             │  • crypto_metrics    │      │  • CoinGecko       │
-            │  • nasa_metrics      │      │  • NASA APOD       │
+            │  • nasa_metrics      │      │  • TLF Transport   │
             └──────────────────────┘      └────────────────────┘
                                                     │
                                                     ↓
@@ -104,7 +104,7 @@ backend/
 └── collectors/
     ├── weather.py       # Colector clima
     ├── crypto.py        # Colector cripto
-    └── nasa.py          # Colector NASA
+    └── tfl.py           # Colector TFL
 ```
 
 **Patrones de diseño**:
@@ -216,10 +216,10 @@ scheduler.add_job(
 - **Frecuencia**: 1x por día
 - **Datos**: Precios, market cap, volumen, cambios 24h
 
-#### NASA APOD API
-- **Endpoint**: `https://api.nasa.gov/planetary/apod`
-- **Frecuencia**: 1x por día
-- **Datos**: Imagen del día, título, explicación
+#### TFL TRANSPORT API
+- **Endpoint**: `https://api.tfl.gov.uk/`
+- **Frecuencia**: Hasta 50x por día
+- **Datos**: Flujo de Trafico, Colas
 
 ---
 
@@ -243,10 +243,10 @@ scheduler.add_job(
    │   ├─→ Parse JSON response
    │   └─→ INSERT into crypto_metrics
    │
-   └─→ nasa_collector.collect_apod()
-       ├─→ GET NASA APOD API
+   └─→ tfl_collector.collect_tfl()
+       ├─→ GET TLF TRANSPORT API
        ├─→ Parse JSON response
-       └─→ INSERT into nasa_metrics
+       └─→ INSERT into tfl_metrics
    ↓
 4. Log de resultados
 ```
@@ -259,7 +259,7 @@ scheduler.add_job(
 2. JavaScript ejecuta API calls
    ├─→ GET /api/weather/latest
    ├─→ GET /api/crypto/latest
-   ├─→ GET /api/nasa/latest
+   ├─→ GET /api/tfl/latest
    └─→ GET /api/stats/summary
    ↓
 3. Backend procesa requests
@@ -272,7 +272,7 @@ scheduler.add_job(
 5. Frontend renderiza:
    ├─→ Actualiza cards
    ├─→ Genera gráficos Chart.js
-   └─→ Muestra NASA APOD
+   └─→ Muestra Grafico TFL Transport
 ```
 
 ### Flujo de Colección Manual
@@ -282,7 +282,7 @@ scheduler.add_job(
    ↓
 2. POST /api/weather/collect
    POST /api/crypto/collect
-   POST /api/nasa/collect
+   POST /api/tfl/collect
    ↓
 3. Collectors ejecutan inmediatamente
    ↓
@@ -458,6 +458,54 @@ Chart.js 4.4.0          # Gráficos
 Tailwind CSS 3.x        # Estilos
 Font Awesome 6.4        # Iconos
 ```
+
+## ⚡ Sistema de Actualización en Tiempo Real
+
+### Backend: Scheduler cada 2 minutos
+```python
+# scheduler.py
+trigger = IntervalTrigger(minutes=2)
+scheduler.add_job(collect_all_metrics, trigger=trigger)
+```
+
+**Flujo:**
+```
+Cada 2 minutos:
+  1. APScheduler trigger
+  2. collect_all_metrics()
+  3. weather_collector.collect()
+  4. crypto_collector.collect()
+  5. tfl_collector.collect()
+  6. Guardar en PostgreSQL
+  7. Log de resultados
+```
+
+### Frontend: Auto-Refresh
+```javascript
+// dashboard.js
+setInterval(refreshAllData, 120000); // 2 minutos
+```
+
+**Flujo:**
+```
+Cada 2 minutos:
+  1. Timer ejecuta refreshAllData()
+  2. Fetch APIs:
+     - /api/weather/latest
+     - /api/crypto/latest
+     - /api/tfl/latest
+  3. Actualizar gráficos
+  4. Actualizar cards
+  5. Mostrar timestamp
+```
+
+### Sincronización
+
+- **Backend**: Colecta datos cada 2 min
+- **Frontend**: Actualiza UI cada 2 min
+- **Offset**: Frontend espera 10s después del backend
+
+Esto asegura que el frontend siempre muestre los datos más recientes.
 
 ---
 
