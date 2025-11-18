@@ -1,6 +1,4 @@
-"""
-Init file for data collectors package.
-"""
+# backend/collectors/__init__.py
 
 from .crypto import CryptoCollector
 from .tfl import TflCollector

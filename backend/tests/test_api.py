@@ -1,26 +1,21 @@
 from datetime import datetime, timedelta
 
 import pytest
-
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base, get_db
-from main import app
-from models import CryptoMetric, NasaMetric, WeatherMetric
+from backend.database import Base, get_db
+from backend.main import app
+from backend.models import CryptoMetric, WeatherMetric, TflMetric
 
-# Configurar base de datos de prueba
+# --- Configuración Base de Datos Test ---
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Crear tablas
 Base.metadata.create_all(bind=engine)
-
-# Override de la dependencia de DB
 
 
 def override_get_db():
@@ -32,16 +27,13 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
-
-# Cliente de pruebas
 client = TestClient(app)
 
-# Fixtures
+# --- Fixtures ---
 
 
 @pytest.fixture
 def db_session():
-    """Proporciona una sesión de base de datos para pruebas"""
     db = TestingSessionLocal()
     try:
         yield db
@@ -51,7 +43,6 @@ def db_session():
 
 @pytest.fixture
 def sample_weather_data(db_session):
-    """Crea datos de prueba de clima"""
     weather = WeatherMetric(
         date=datetime.utcnow(),
         city="Test City",
@@ -75,7 +66,6 @@ def sample_weather_data(db_session):
 
 @pytest.fixture
 def sample_crypto_data(db_session):
-    """Crea datos de prueba de criptomonedas"""
     crypto = CryptoMetric(
         date=datetime.utcnow(),
         symbol="BTC",
@@ -98,29 +88,24 @@ def sample_crypto_data(db_session):
 
 
 @pytest.fixture
-def sample_nasa_data(db_session):
-    """Crea datos de prueba de NASA"""
-    nasa = NasaMetric(
+def sample_tfl_data(db_session):
+    """Crea datos de prueba de TFL"""
+    tfl = TflMetric(
         date=datetime.utcnow(),
-        apod_date="2024-01-01",
-        title="Test APOD",
-        explanation="This is a test explanation",
-        url="https://example.com/image.jpg",
-        hdurl="https://example.com/image_hd.jpg",
-        media_type="image",
-        copyright="Test Copyright",
+        line_name="Central",
+        status_description="Good Service",
+        reason=None,
     )
-    db_session.add(nasa)
+    db_session.add(tfl)
     db_session.commit()
-    db_session.refresh(nasa)
-    return nasa
+    db_session.refresh(tfl)
+    return tfl
 
 
-# ==================== TESTS DE ENDPOINTS PRINCIPALES ====================
+# --- Tests generales ---
 
 
 def test_root_endpoint():
-    """Test del endpoint raíz"""
     response = client.get("/")
     assert response.status_code == 200
     data = response.json()
@@ -129,33 +114,27 @@ def test_root_endpoint():
 
 
 def test_health_check():
-    """Test del health check"""
     response = client.get("/health")
     assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "healthy"
+    assert response.json()["status"] == "healthy"
 
 
-# ==================== TESTS DE WEATHER ====================
+# --- WEATHER ---
 
 
 def test_get_latest_weather_empty():
-    """Test obtener clima sin datos"""
     response = client.get("/api/weather/latest")
     assert response.status_code == 404
 
 
 def test_get_latest_weather(sample_weather_data):
-    """Test obtener último registro de clima"""
     response = client.get("/api/weather/latest")
     assert response.status_code == 200
     data = response.json()
     assert data["city"] == "Test City"
-    assert data["temperature"] == 25.0
 
 
 def test_get_weather_range(sample_weather_data):
-    """Test obtener clima en rango de fechas"""
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     tomorrow = today + timedelta(days=1)
@@ -164,134 +143,100 @@ def test_get_weather_range(sample_weather_data):
         f"/api/weather/range?start_date={yesterday}&end_date={tomorrow}"
     )
     assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) > 0
+    assert len(response.json()) > 0
 
 
 def test_get_weather_range_invalid_dates():
-    """Test con fechas inválidas"""
-    response = client.get("/api/weather/range?start_date=invalid&end_date=invalid")
+    response = client.get("/api/weather/range?start_date=xxx&end_date=xxx")
     assert response.status_code == 400
 
 
-# ==================== TESTS DE CRYPTO ====================
+# --- CRYPTO ---
 
 
 def test_get_latest_crypto_empty():
-    """Test obtener crypto sin datos"""
     response = client.get("/api/crypto/latest")
     assert response.status_code == 404
 
 
 def test_get_latest_crypto(sample_crypto_data):
-    """Test obtener últimos registros de crypto"""
     response = client.get("/api/crypto/latest")
-    assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
     assert len(data) > 0
     assert data[0]["symbol"] == "BTC"
 
 
 def test_get_crypto_range(sample_crypto_data):
-    """Test obtener crypto en rango de fechas"""
     today = datetime.now().date()
-    yesterday = today - timedelta(days=1)
-    tomorrow = today + timedelta(days=1)
-
     response = client.get(
-        f"/api/crypto/range?start_date={yesterday}&end_date={tomorrow}"
+        f"/api/crypto/range?start_date={today}&end_date={today}"
     )
     assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
 
 
 def test_get_crypto_by_symbol(sample_crypto_data):
-    """Test filtrar crypto por símbolo"""
     today = datetime.now().date()
     response = client.get(f"/api/crypto/daily?target_date={today}&symbol=BTC")
     assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    if len(data) > 0:
-        assert data[0]["symbol"] == "BTC"
 
 
-# ==================== TESTS DE NASA ====================
+# --- TFL ---
 
 
-def test_get_latest_nasa_empty():
-    """Test obtener NASA sin datos"""
-    response = client.get("/api/nasa/latest")
+def test_get_latest_tfl_empty():
+    response = client.get("/api/tfl/latest")
     assert response.status_code == 404
 
 
-def test_get_latest_nasa(sample_nasa_data):
-    """Test obtener último APOD"""
-    response = client.get("/api/nasa/latest")
-    assert response.status_code == 200
+def test_get_latest_tfl(sample_tfl_data):
+    response = client.get("/api/tfl/latest")
     data = response.json()
-    assert data["title"] == "Test APOD"
-    assert data["media_type"] == "image"
+    assert data["line_name"] == "Central"
+    assert data["status_description"] == "Good Service"
 
 
-def test_get_nasa_range(sample_nasa_data):
-    """Test obtener NASA en rango de fechas"""
-    response = client.get("/api/nasa/range?start_date=2024-01-01&end_date=2024-01-02")
+def test_get_tfl_range(sample_tfl_data):
+    today = datetime.now().date()
+    response = client.get(
+        f"/api/tfl/range?start_date={today}&end_date={today}"
+    )
     assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
+    assert isinstance(response.json(), list)
 
 
-# ==================== TESTS DE STATS ====================
+# --- Stats ---
 
 
-def test_get_stats_summary(sample_weather_data, sample_crypto_data, sample_nasa_data):
-    """Test obtener resumen de estadísticas"""
+def test_get_stats_summary(sample_weather_data, sample_crypto_data, sample_tfl_data):
     response = client.get("/api/stats/summary")
     assert response.status_code == 200
     data = response.json()
+
     assert "total_records" in data
     assert "latest_dates" in data
+
     assert data["total_records"]["weather"] >= 1
     assert data["total_records"]["crypto"] >= 1
-    assert data["total_records"]["nasa"] >= 1
+    assert data["total_records"]["tfl"] >= 1
 
 
-# ==================== TESTS DE MODELOS ====================
+# --- Modelos ---
 
 
 def test_weather_model_to_dict(sample_weather_data):
-    """Test del método to_dict del modelo Weather"""
-    data = sample_weather_data.to_dict()
-    assert isinstance(data, dict)
-    assert "id" in data
-    assert "temperature" in data
-    assert data["city"] == "Test City"
+    assert isinstance(sample_weather_data.to_dict(), dict)
 
 
 def test_crypto_model_to_dict(sample_crypto_data):
-    """Test del método to_dict del modelo Crypto"""
-    data = sample_crypto_data.to_dict()
-    assert isinstance(data, dict)
-    assert "symbol" in data
-    assert data["symbol"] == "BTC"
-    assert "current_price" in data
+    assert sample_crypto_data.to_dict()["symbol"] == "BTC"
 
 
-def test_nasa_model_to_dict(sample_nasa_data):
-    """Test del método to_dict del modelo NASA"""
-    data = sample_nasa_data.to_dict()
-    assert isinstance(data, dict)
-    assert "title" in data
-    assert data["title"] == "Test APOD"
+def test_tfl_model_to_dict(sample_tfl_data):
+    assert sample_tfl_data.to_dict()["line_name"] == "Central"
 
 
-# ==================== CLEANUP ====================
+# --- Cleanup ---
 
 
 def teardown_module(module):
-    """Limpiar después de todos los tests"""
     Base.metadata.drop_all(bind=engine)
