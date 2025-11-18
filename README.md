@@ -1,13 +1,25 @@
 # 📊 Dashboard de Métricas en Tiempo Real
 
-Dashboard interactivo con actualización automática cada 2 minutos para visualizar datos de clima, criptomonedas y estado del transporte público de Londres.
-
 ![Dashboard Preview](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-![Auto Update](https://img.shields.io/badge/Auto%20Update-2%20min-orange)
+![Auto Update](https://img.shields.io/badge/Auto%20Update-5%20min-orange)
+
+> 🚀 Dashboard interactivo con actualización automática cada 5 minutos para visualizar datos de clima, criptomonedas (Top 6) y estado del transporte público de Londres (Top 8).
+
+[🌐 Demo en Vivo](#) | [📚 Documentación](docs/) | [🐛 Reportar Bug](../../issues)
+
+---
+
+## 🎯 Características Destacadas
+
+✅ **Sin Duplicados** - Cada criptomoneda y línea TfL aparece solo una vez  
+✅ **Tiempo Real** - Actualización automática cada 5 minutos  
+✅ **Gráficos Interactivos** - Visualización de evolución de precios  
+✅ **Responsive** - Funciona en desktop, tablet y móvil  
+✅ **Docker Ready** - Deploy en segundos  
+✅ **CI/CD Incluido** - GitHub Actions configurado  
 
 ---
 
@@ -36,41 +48,64 @@ Dashboard interactivo con actualización automática cada 2 minutos para visuali
 - Selector de rango de fechas para análisis histórico
 
 ---
+## 🚀 Instalación Rápida
 
-## 🚀 Inicio Rápido
-
-### Requisitos Previos
-
+### Requisitos
 - Docker >= 20.10
 - Docker Compose >= 2.0
 - API Key de OpenWeatherMap (gratuita)
 
-### Instalación en 3 Pasos
+### Instalación en 4 Pasos
 ```bash
 # 1. Clonar repositorio
 git clone https://github.com/TU-USUARIO/dashboard-metrics.git
 cd dashboard-metrics
 
-# 2. Configurar API key
+# 2. Configurar variables de entorno
 cp .env.example .env
-nano .env  # Agregar OPENWEATHER_API_KEY
+# Editar .env y agregar tu OPENWEATHER_API_KEY
 
 # 3. Levantar servicios
 docker-compose up -d
+
+# 4. Acceder
+# Frontend: http://localhost
+# API: http://localhost:8000/docs
 ```
 
-### Acceder a la Aplicación
+### Obtener API Key de OpenWeatherMap
 
-- **Frontend**: http://localhost
-- **API Backend**: http://localhost:8000
-- **API Docs (Swagger)**: http://localhost:8000/docs
-- **pgAdmin**: http://localhost:5050 (user: admin@metrics.local, pass: admin)
+1. Ir a https://openweathermap.org/api
+2. Crear cuenta gratuita
+3. Ir a "API Keys"
+4. Copiar tu API key
+5. Pegarla en el archivo `.env`
+
+---
+```
 
 ---
 
+## 🌐 PASO 5: Crear Repositorio en GitHub
+
+### 5.1 En el Navegador
+
+1. Ir a https://github.com
+2. Login con tu cuenta
+3. Click en **"+"** (arriba derecha) → **"New repository"**
+
+### 5.2 Configurar Repositorio
+```
+Repository name: dashboard-metrics
+Description: Dashboard en tiempo real con clima, criptomonedas (Top 6) y TfL Transport (Top 8). Actualización automática cada 5 minutos.
+Visibility: ✅ Public (o Private si prefieres)
+❌ NO marcar "Initialize this repository with a README"
+❌ NO agregar .gitignore
+❌ NO agregar license
+
 ## 📁 Estructura del Proyecto
 ```
-dashboard-metrics/
+dashboard-metricas-v2/
 ├── backend/                 # API FastAPI
 │   ├── collectors/         # Colectores de datos
 │   │   ├── weather.py     # OpenWeatherMap
