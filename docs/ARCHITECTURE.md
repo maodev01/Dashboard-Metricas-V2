@@ -536,5 +536,5 @@ Esto asegura que el frontend siempre muestre los datos más recientes.
 
 ---
 
-**Versión**: 1.0.0  
+**Versión**: 1.0.0
 **Última actualización**: Octubre 2024

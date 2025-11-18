@@ -14,6 +14,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -66,6 +67,8 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 
 # Ruta raíz
+
+
 @app.get("/")
 async def root():
     return {
@@ -98,6 +101,8 @@ async def root():
     }
 
 # Health check
+
+
 @app.get("/health")
 async def health_check():
     return {

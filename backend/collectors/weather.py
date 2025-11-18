@@ -7,6 +7,7 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
+
 class WeatherCollector:
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -55,7 +56,8 @@ class WeatherCollector:
             db.commit()
             db.refresh(weather_metric)
 
-            logger.info(f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
+            logger.info(
+                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
             return weather_metric
 
         except requests.exceptions.RequestException as e:
@@ -86,7 +88,8 @@ class WeatherCollector:
                 "units": "metric"
             }
 
-            logger.info(f"Colectando datos del clima para coordenadas: {lat}, {lon}")
+            logger.info(
+                f"Colectando datos del clima para coordenadas: {lat}, {lon}")
             response = requests.get(self.BASE_URL, params=params, timeout=10)
             response.raise_for_status()
 
@@ -112,10 +115,12 @@ class WeatherCollector:
             db.commit()
             db.refresh(weather_metric)
 
-            logger.info(f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
+            logger.info(
+                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
             return weather_metric
 
         except Exception as e:
-            logger.error(f"Error al colectar datos del clima por coordenadas: {str(e)}")
+            logger.error(
+                f"Error al colectar datos del clima por coordenadas: {str(e)}")
             db.rollback()
             raise

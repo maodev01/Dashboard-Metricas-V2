@@ -44,7 +44,7 @@ const API = {
         if (city) params.append('city', city);
         if (country) params.append('country', country);
         if (params.toString()) url += `?${params.toString()}`;
-        
+
         return await this.request(url, { method: 'POST' });
     },
 
@@ -59,7 +59,7 @@ const API = {
         if (date) params.append('target_date', date);
         if (symbol) params.append('symbol', symbol);
         if (params.toString()) url += `?${params.toString()}`;
-        
+
         return await this.request(url);
     },
 
@@ -111,14 +111,14 @@ const API = {
 async function collectAllData() {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(btn => btn.disabled = true);
-    
+
     try {
         showNotification('Colectando datos...', 'info');
-        
+
         const results = await Promise.allSettled([
             API.collectWeather(),
             API.collectCrypto(),
-            API.collectTfl() 
+            API.collectTfl()
         ]);
 
         const successful = results.filter(r => r.status === 'fulfilled').length;
@@ -147,7 +147,7 @@ let refreshLock = false;
 async function refreshAllData() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    
+
     await Promise.all([
         loadWeatherData(startDate, endDate),
         loadCryptoData(startDate, endDate),

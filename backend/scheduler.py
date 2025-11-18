@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class MetricsScheduler:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
@@ -70,7 +71,8 @@ class MetricsScheduler:
             replace_existing=True
         )
 
-        logger.info(f"⏰ Scheduler configurado para ejecutar cada {settings.COLLECTION_INTERVAL_MINUTES} minutos")
+        logger.info(
+            f"⏰ Scheduler configurado para ejecutar cada {settings.COLLECTION_INTERVAL_MINUTES} minutos")
 
         # Ejecutar una colección inicial inmediata
         logger.info("🚀 Ejecutando colección inicial...")
@@ -93,6 +95,7 @@ class MetricsScheduler:
         """
         logger.info("▶️ Ejecutando colección manual de métricas...")
         self.collect_all_metrics()
+
 
 # Singleton del scheduler
 metrics_scheduler = MetricsScheduler()

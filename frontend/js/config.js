@@ -2,7 +2,7 @@
 const CONFIG = {
     // URL base de la API
     API_BASE_URL: 'http://localhost:8000/api',
-    
+
     // Colores para los gráficos
     CHART_COLORS: {
         primary: 'rgba(102, 126, 234, 1)',
@@ -18,13 +18,13 @@ const CONFIG = {
         info: 'rgba(59, 130, 246, 1)',
         infoLight: 'rgba(59, 130, 246, 0.2)',
     },
-    
+
     // Configuración de criptomonedas a mostrar
     CRYPTO_SYMBOLS: ['BTC', 'ETH', 'ADA', 'SOL'],
-    
+
     // Número de días por defecto para mostrar en gráficos
     DEFAULT_DAYS_RANGE: 7,
-    
+
     // Opciones por defecto de Chart.js
     CHART_OPTIONS: {
         responsive: true,
@@ -103,7 +103,7 @@ function showNotification(message, type = 'info') {
         warning: 'bg-yellow-500',
         info: 'bg-blue-500'
     };
-    
+
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300`;
     notification.innerHTML = `
@@ -112,14 +112,14 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animar entrada
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 10);
-    
+
     // Remover después de 3 segundos
     setTimeout(() => {
         notification.style.opacity = '0';
@@ -134,7 +134,7 @@ function initializeDates() {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - CONFIG.DEFAULT_DAYS_RANGE);
-    
+
     document.getElementById('startDate').value = formatDate(startDate);
     document.getElementById('endDate').value = formatDate(endDate);
 }

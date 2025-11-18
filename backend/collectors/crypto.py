@@ -6,6 +6,7 @@ from models import CryptoMetric
 
 logger = logging.getLogger(__name__)
 
+
 class CryptoCollector:
     BASE_URL = "https://api.coingecko.com/api/v3"
 
@@ -20,7 +21,8 @@ class CryptoCollector:
         """
         if crypto_ids is None:
             # Solo las 6 más importantes por market cap
-            crypto_ids = ["bitcoin", "ethereum", "cardano", "solana", "binancecoin", "ripple"]
+            crypto_ids = ["bitcoin", "ethereum", "cardano",
+                          "solana", "binancecoin", "ripple"]
 
         # Limitar a máximo 6 criptos
         crypto_ids = crypto_ids[:6]
@@ -60,7 +62,8 @@ class CryptoCollector:
                     high_24h=coin.get("high_24h", 0),
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
-                    price_change_percentage_24h=coin.get("price_change_percentage_24h", 0),
+                    price_change_percentage_24h=coin.get(
+                        "price_change_percentage_24h", 0),
                     circulating_supply=coin.get("circulating_supply", 0),
                     total_supply=coin.get("total_supply", 0)
                 )
@@ -73,7 +76,8 @@ class CryptoCollector:
             for metric in metrics:
                 db.refresh(metric)
 
-            logger.info(f"Datos de {len(metrics)} criptomonedas guardados exitosamente")
+            logger.info(
+                f"Datos de {len(metrics)} criptomonedas guardados exitosamente")
             return metrics
 
         except requests.exceptions.RequestException as e:
@@ -120,7 +124,8 @@ class CryptoCollector:
                     high_24h=coin.get("high_24h", 0),
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
-                    price_change_percentage_24h=coin.get("price_change_percentage_24h", 0),
+                    price_change_percentage_24h=coin.get(
+                        "price_change_percentage_24h", 0),
                     circulating_supply=coin.get("circulating_supply", 0),
                     total_supply=coin.get("total_supply", 0)
                 )
@@ -133,7 +138,8 @@ class CryptoCollector:
             for metric in metrics:
                 db.refresh(metric)
 
-            logger.info(f"Top {len(metrics)} criptomonedas guardadas exitosamente")
+            logger.info(
+                f"Top {len(metrics)} criptomonedas guardadas exitosamente")
             return metrics
 
         except Exception as e:

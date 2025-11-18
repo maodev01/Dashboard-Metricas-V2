@@ -28,7 +28,7 @@ Esta guía cubre todos los escenarios de despliegue del Dashboard de Métricas.
 1. **OpenWeatherMap**: https://openweathermap.org/api
    - Crear cuenta gratuita
    - Obtener API key
-   
+
 2. **NASA**: https://api.nasa.gov/
    - Obtener API key (o usar DEMO_KEY con límites)
 
@@ -231,7 +231,7 @@ sudo systemctl start dashboard-metrics
 - **Tipo**: t3.medium
 - **OS**: Ubuntu 22.04 LTS
 - **Storage**: 30GB gp3
-- **Security Group**: 
+- **Security Group**:
   - Permitir puertos 22, 80, 443
   - Permitir 8000 desde tu IP (para testing)
 

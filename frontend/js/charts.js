@@ -6,7 +6,7 @@ let cryptoChart = null;
 // Función para crear/actualizar gráfico del clima
 function createWeatherChart(data) {
     const ctx = document.getElementById('weatherChart');
-    
+
     if (!ctx) {
         console.error('Canvas weatherChart no encontrado');
         return;
@@ -162,7 +162,7 @@ function createWeatherChart(data) {
 // Función para crear/actualizar gráfico de criptomonedas
 function createCryptoChart(data) {
     const ctx = document.getElementById('cryptoChart');
-    
+
     if (!ctx) {
         console.error('Canvas cryptoChart no encontrado');
         return;
@@ -208,8 +208,8 @@ function createCryptoChart(data) {
     const uniqueDates = [...new Set(allDates.map(d => d.getTime()))]
         .sort()
         .map(timestamp => new Date(timestamp));
-    
-    const labels = uniqueDates.map(date => 
+
+    const labels = uniqueDates.map(date =>
         date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     );
 
@@ -227,7 +227,7 @@ function createCryptoChart(data) {
     const datasets = topSymbols.map((symbol) => {
         const cryptoData = groupedData[symbol]
             .sort((a, b) => new Date(a.date) - new Date(b.date));
-        
+
         const prices = uniqueDates.map(targetDate => {
             const item = cryptoData.find(d => {
                 const dataDate = new Date(d.date);
@@ -236,9 +236,9 @@ function createCryptoChart(data) {
             return item ? item.current_price : null;
         });
 
-        const color = cryptoColors[symbol] || { 
-            border: `hsl(${Math.random() * 360}, 70%, 50%)`, 
-            bg: `hsla(${Math.random() * 360}, 70%, 50%, 0.1)` 
+        const color = cryptoColors[symbol] || {
+            border: `hsl(${Math.random() * 360}, 70%, 50%)`,
+            bg: `hsla(${Math.random() * 360}, 70%, 50%, 0.1)`
         };
 
         return {

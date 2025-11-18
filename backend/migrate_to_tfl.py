@@ -10,6 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def migrate():
     try:
         # Eliminar tabla nasa_metrics si existe
@@ -31,6 +32,7 @@ def migrate():
     except Exception as e:
         logger.error(f"❌ Error en migración: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     migrate()

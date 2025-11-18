@@ -6,6 +6,7 @@ from models import TflMetric
 
 logger = logging.getLogger(__name__)
 
+
 class TflCollector:
     BASE_URL = "https://api.tfl.gov.uk"
 
@@ -42,25 +43,31 @@ class TflCollector:
                     logger.info(f"Línea {line_name}: Sin cambios, omitiendo")
                     continue
                 # Extraer información de disrupciones si existen
-                disruption = status.get("disruption", {}) if status.get("disruption") else {}
+                disruption = status.get("disruption", {}) if status.get(
+                    "disruption") else {}
                 tfl_metric = TflMetric(
                     date=current_time,
                     line_id=line_id,
                     line_name=line_name,
                     status_severity=status.get("statusSeverity", 0),
-                    status_severity_description=status.get("statusSeverityDescription", "Unknown"),
+                    status_severity_description=status.get(
+                        "statusSeverityDescription", "Unknown"),
                     reason=status.get("reason"),
-                    disruption_category=disruption.get("category") if disruption else None,
-                    closure_text=disruption.get("closureText") if disruption else None
+                    disruption_category=disruption.get(
+                        "category") if disruption else None,
+                    closure_text=disruption.get(
+                        "closureText") if disruption else None
                 )
                 db.add(tfl_metric)
                 metrics.append(tfl_metric)
-                logger.info(f"Guardando: {line_name} - {status.get('statusSeverityDescription')}")
+                logger.info(
+                    f"Guardando: {line_name} - {status.get('statusSeverityDescription')}")
             if metrics:
                 db.commit()
                 for metric in metrics:
                     db.refresh(metric)
-                logger.info(f"Estado de {len(metrics)} líneas TfL guardado exitosamente")
+                logger.info(
+                    f"Estado de {len(metrics)} líneas TfL guardado exitosamente")
             else:
                 logger.info("No hay cambios en las líneas TfL")
             return metrics
@@ -74,8 +81,6 @@ class TflCollector:
             raise
 
     def collect_bike_points(self, db: Session, limit: int = 50) -> dict:
-
-
         """
         Colecta información de puntos de bicicletas (BikePoints)
         Retorna un resumen, no lo guarda en DB para evitar sobrecarga
@@ -117,7 +122,8 @@ class TflCollector:
 
                 bike_points.append(bike_point)
 
-            logger.info(f"Información de {len(bike_points)} BikePoints procesada")
+            logger.info(
+                f"Información de {len(bike_points)} BikePoints procesada")
             return {
                 "total_points": len(data),
                 "sample_size": len(bike_points),

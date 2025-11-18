@@ -4,7 +4,7 @@
 async function loadStats() {
     try {
         const stats = await API.getStatsSummary();
-        
+
         const statsSection = document.getElementById('statsSection');
         statsSection.innerHTML = `
             <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white card-hover transition duration-300">
@@ -21,7 +21,7 @@ async function loadStats() {
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-6 text-white card-hover transition duration-300">
                 <div class="flex items-center justify-between">
                     <div>
@@ -36,7 +36,7 @@ async function loadStats() {
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white card-hover transition duration-300">
                 <div class="flex items-center justify-between">
                     <div>
@@ -61,17 +61,17 @@ async function loadStats() {
 async function loadWeatherData(startDate, endDate) {
     const loading = document.getElementById('weatherLoading');
     loading.classList.remove('hidden');
-    
+
     try {
         // Obtener datos actuales
         const currentWeather = await API.getLatestWeather();
         displayCurrentWeather(currentWeather);
-        
+
         // Obtener datos históricos para el gráfico
         const weatherData = await API.getWeatherRange(startDate, endDate);
         console.log('Weather data for chart:', weatherData.length);
         createWeatherChart(weatherData);
-        
+
     } catch (error) {
         console.error('Error loading weather data:', error);
         showNotification('Error al cargar datos del clima', 'error');
@@ -82,9 +82,9 @@ async function loadWeatherData(startDate, endDate) {
 
 function displayCurrentWeather(data) {
     const currentWeather = document.getElementById('currentWeather');
-    
+
     const weatherIcon = getWeatherIcon(data.weather_main);
-    
+
     currentWeather.innerHTML = `
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center">
             <i class="fas ${weatherIcon} text-4xl text-blue-600 mb-2"></i>
@@ -92,7 +92,7 @@ function displayCurrentWeather(data) {
             <p class="text-3xl font-bold text-gray-800">${formatNumber(data.temperature, 1)}°C</p>
             <p class="text-gray-500 text-xs mt-1">${data.weather_description}</p>
         </div>
-        
+
         <div class="bg-gray-50 rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-gray-600 text-sm">Sensación térmica</span>
@@ -107,7 +107,7 @@ function displayCurrentWeather(data) {
                 <span class="font-semibold text-gray-800">${data.pressure} hPa</span>
             </div>
         </div>
-        
+
         <div class="bg-gray-50 rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-gray-600 text-sm">Viento</span>
@@ -122,7 +122,7 @@ function displayCurrentWeather(data) {
                 <span class="font-semibold text-gray-800">${formatNumber(data.temp_min, 1)}° / ${formatNumber(data.temp_max, 1)}°</span>
             </div>
         </div>
-        
+
         <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center flex flex-col justify-center">
             <p class="text-gray-600 text-xs mb-1">Última actualización</p>
             <p class="text-sm font-semibold text-gray-800">${formatDateTime(data.date)}</p>
@@ -148,18 +148,18 @@ function getWeatherIcon(weatherMain) {
 async function loadCryptoData(startDate, endDate) {
     const loading = document.getElementById('cryptoLoading');
     loading.classList.remove('hidden');
-    
+
     try {
         // Obtener datos actuales
         const currentCrypto = await API.getLatestCrypto();
         console.log('Current crypto data:', currentCrypto);
         displayCryptoCards(currentCrypto);
-        
+
         // Obtener datos históricos para el gráfico
         const cryptoData = await API.getCryptoRange(startDate, endDate);
         console.log('Crypto data for chart:', cryptoData.length);
         createCryptoChart(cryptoData);
-        
+
     } catch (error) {
         console.error('Error loading crypto data:', error);
         showNotification('Error al cargar datos de criptomonedas', 'error');
@@ -170,31 +170,31 @@ async function loadCryptoData(startDate, endDate) {
 
 function displayCryptoCards(data) {
     const cryptoCards = document.getElementById('cryptoCards');
-    
+
     if (!data || data.length === 0) {
         cryptoCards.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay datos disponibles</p>';
         return;
     }
-    
+
     console.log('Displaying crypto cards, total data:', data.length);
-    
+
     // LIMITAR A 6 CRIPTOS EXACTOS, ordenados por market cap rank
     const topCryptos = data
         .sort((a, b) => a.market_cap_rank - b.market_cap_rank)
         .slice(0, 6);
-    
+
     console.log('Top 6 cryptos:', topCryptos.map(c => `${c.symbol}: $${c.current_price}`));
-    
+
     // Limpiar contenedor
     cryptoCards.innerHTML = '';
-    
+
     // Crear cada tarjeta individualmente para evitar problemas de scope
     topCryptos.forEach(cryptoData => {
         const isPositive = cryptoData.price_change_percentage_24h > 0;
         const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
         const changeBg = isPositive ? 'bg-green-100' : 'bg-red-100';
         const changeIcon = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
-        
+
         const cardHTML = `
             <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition duration-300">
                 <div class="flex items-center justify-between mb-3">
@@ -211,7 +211,7 @@ function displayCryptoCards(data) {
                         #${cryptoData.market_cap_rank}
                     </span>
                 </div>
-                
+
                 <div class="mb-3">
                     <p class="text-2xl font-bold text-gray-800">${formatCurrency(cryptoData.current_price)}</p>
                     <div class="flex items-center mt-1 ${changeColor}">
@@ -219,7 +219,7 @@ function displayCryptoCards(data) {
                         <span class="text-sm font-semibold">${formatNumber(Math.abs(cryptoData.price_change_percentage_24h), 2)}%</span>
                     </div>
                 </div>
-                
+
                 <div class="border-t pt-3 space-y-1">
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-500">Market Cap</span>
@@ -236,7 +236,7 @@ function displayCryptoCards(data) {
                 </div>
             </div>
         `;
-        
+
         cryptoCards.insertAdjacentHTML('beforeend', cardHTML);
     });
 }
@@ -270,7 +270,7 @@ function getCryptoIcon(symbol) {
 async function loadTflData() {
     const loading = document.getElementById('tflLoading');
     loading.classList.remove('hidden');
-    
+
     try {
         const tflData = await API.getLatestTfl();
         console.log('TfL data:', tflData);
@@ -285,14 +285,14 @@ async function loadTflData() {
 
 function displayTflStatus(data) {
     const tflContent = document.getElementById('tflContent');
-    
+
     if (!data || data.length === 0) {
         tflContent.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay datos disponibles</p>';
         return;
     }
-    
+
     console.log('Displaying TfL, total data:', data.length);
-    
+
     // LIMITAR A 8 LÍNEAS EXACTAS, ordenar por problemas primero
     const sortedData = data
         .sort((a, b) => {
@@ -301,17 +301,17 @@ function displayTflStatus(data) {
             return a.status_severity - b.status_severity;
         })
         .slice(0, 8);
-    
+
     console.log('Top 8 TfL lines:', sortedData.map(l => `${l.line_name}: ${l.status_severity_description}`));
-    
+
     // Limpiar contenedor
     tflContent.innerHTML = '';
-    
+
     // Crear cada tarjeta individualmente
     sortedData.forEach(lineData => {
         const statusColor = getStatusColor(lineData.status_severity);
         const statusIcon = getStatusIcon(lineData.status_severity);
-        
+
         const cardHTML = `
             <div class="bg-white border-l-4 ${statusColor.border} rounded-lg p-4 hover:shadow-lg transition duration-300">
                 <div class="flex items-center justify-between mb-2">
@@ -335,7 +335,7 @@ function displayTflStatus(data) {
                 ` : ''}
             </div>
         `;
-        
+
         tflContent.insertAdjacentHTML('beforeend', cardHTML);
     });
 }
@@ -377,7 +377,7 @@ let autoRefreshInterval = null;
 function startAutoRefresh() {
     if (CONFIG.AUTO_REFRESH_ENABLED) {
         console.log(`🔄 Auto-refresh activado cada ${CONFIG.AUTO_REFRESH_INTERVAL / 1000} segundos`);
-        
+
         autoRefreshInterval = setInterval(async () => {
             console.log('🔄 Actualizando datos automáticamente...');
             await refreshAllData();
@@ -397,28 +397,28 @@ function stopAutoRefresh() {
 function applyDateRange() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    
+
     if (!startDate || !endDate) {
         showNotification('Por favor selecciona ambas fechas', 'warning');
         return;
     }
-    
+
     if (new Date(endDate) < new Date(startDate)) {
         showNotification('La fecha final debe ser posterior a la fecha inicial', 'error');
         return;
     }
-    
+
     refreshAllData();
 }
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Inicializando Dashboard de Métricas...');
-    
+
     initializeDates();
     await refreshAllData();
     startAutoRefresh();
-    
+
     console.log('Dashboard cargado exitosamente!');
 });
 

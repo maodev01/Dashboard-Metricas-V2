@@ -14,12 +14,12 @@
 
 ## 🎯 Características Destacadas
 
-✅ **Sin Duplicados** - Cada criptomoneda y línea TfL aparece solo una vez  
-✅ **Tiempo Real** - Actualización automática cada 5 minutos  
-✅ **Gráficos Interactivos** - Visualización de evolución de precios  
-✅ **Responsive** - Funciona en desktop, tablet y móvil  
-✅ **Docker Ready** - Deploy en segundos  
-✅ **CI/CD Incluido** - GitHub Actions configurado  
+✅ **Sin Duplicados** - Cada criptomoneda y línea TfL aparece solo una vez
+✅ **Tiempo Real** - Actualización automática cada 5 minutos
+✅ **Gráficos Interactivos** - Visualización de evolución de precios
+✅ **Responsive** - Funciona en desktop, tablet y móvil
+✅ **Docker Ready** - Deploy en segundos
+✅ **CI/CD Incluido** - GitHub Actions configurado
 
 ---
 

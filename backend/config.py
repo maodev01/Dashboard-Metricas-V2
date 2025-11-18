@@ -1,12 +1,14 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
 
+
 class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./metrics.db"
 
     # API Keys (todas gratuitas y abiertas)
-    OPENWEATHER_API_KEY: Optional[str] = None  # Obtener en https://openweathermap.org/api
+    # Obtener en https://openweathermap.org/api
+    OPENWEATHER_API_KEY: Optional[str] = None
 
     # Configuración de la aplicación
     APP_NAME: str = "Dashboard de Métricas"
@@ -28,5 +30,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
 
 settings = Settings()

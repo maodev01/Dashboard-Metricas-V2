@@ -3,6 +3,7 @@ from sqlalchemy.sql import func
 from database import Base
 from datetime import datetime
 
+
 class WeatherMetric(Base):
     __tablename__ = "weather_metrics"
 
@@ -78,6 +79,7 @@ class CryptoMetric(Base):
             "total_supply": self.total_supply
         }
 
+
 class TflMetric(Base):
     __tablename__ = "tfl_metrics"
 
@@ -86,7 +88,8 @@ class TflMetric(Base):
     line_id = Column(String(50), index=True)  # ej: "victoria", "central"
     line_name = Column(String(100))
     status_severity = Column(Integer)  # 0-20 (10=Good Service)
-    status_severity_description = Column(String(50))  # "Good Service", "Minor Delays"
+    status_severity_description = Column(
+        String(50))  # "Good Service", "Minor Delays"
     reason = Column(Text, nullable=True)  # Razón del estado
     disruption_category = Column(String(100), nullable=True)
     closure_text = Column(Text, nullable=True)

@@ -177,7 +177,7 @@ jobs:
             -e DEBUG=True \
             test-backend
           sleep 15
-          
+
           # Health check with retries
           for i in {1..5}; do
             if curl -f http://localhost:8000/health; then
@@ -187,7 +187,7 @@ jobs:
             echo "⏳ Waiting for service... ($i/5)"
             sleep 5
           done
-          
+
           docker stop test-backend
           docker rm test-backend
 
@@ -247,11 +247,11 @@ jobs:
           script: |
             set -e
             cd /opt/dashboard-metrics-staging
-            
+
             # Update code
             git fetch origin develop
             git reset --hard origin/develop
-            
+
             # Create or update .env
             cat > .env << EOF
             OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
@@ -260,12 +260,12 @@ jobs:
             COLLECTION_INTERVAL_MINUTES=2
             ALLOWED_ORIGINS=["*"]
             EOF
-            
+
             # Deploy services
             docker-compose down
             docker-compose pull
             docker-compose up -d --build
-            
+
             # Cleanup
             docker system prune -af --volumes
 
@@ -332,16 +332,16 @@ jobs:
           script: |
             set -e
             cd /opt/dashboard-metrics
-            
+
             # Backup database
             timestamp=$(date +%Y%m%d_%H%M%S)
             docker-compose exec -T db pg_dump -U metrics_user metrics_db > backup_$timestamp.sql
             gzip backup_$timestamp.sql
-            
+
             # Update code
             git fetch origin main
             git reset --hard origin/main
-            
+
             # Update environment file
             cat > .env << EOF
             OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
@@ -351,16 +351,16 @@ jobs:
             ALLOWED_ORIGINS=["https://your-domain.com"]
             LOG_LEVEL=INFO
             EOF
-            
+
             # Zero-downtime deployment
             docker-compose pull
             docker-compose up -d --build --no-deps backend
             sleep 15
             docker-compose up -d --no-deps frontend
-            
+
             # Cleanup
             docker system prune -af --volumes
-            
+
             # Keep only last 7 backups
             ls -t backup_*.sql.gz | tail -n +8 | xargs -r rm
 
@@ -431,18 +431,18 @@ jobs:
           script: |
             set -e
             cd /opt/dashboard-metrics
-            
+
             # Revert to previous commit
             current_commit=$(git rev-parse --short HEAD)
             git checkout HEAD~1
             previous_commit=$(git rev-parse --short HEAD)
-            
+
             echo "Rolling back from $current_commit to $previous_commit"
-            
+
             # Restart services
             docker-compose down
             docker-compose up -d --build
-            
+
             echo "✅ Rollback completado de $current_commit a $previous_commit"
 
       - name: Notify Slack - Rollback
