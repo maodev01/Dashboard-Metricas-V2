@@ -1,5 +1,5 @@
 #!/bin/sh
+echo "Starting backend on port: ${PORT}"
 
-echo "Starting backend on port: ${PORT:-8000}"
-
-uvicorn backend.main:app --host 0.0.0.0 --port "${PORT:-8000}"
+# Railway siempre proporciona $PORT, solo lo usamos
+exec uvicorn main:app --host 0.0.0.0 --port "${PORT}"
