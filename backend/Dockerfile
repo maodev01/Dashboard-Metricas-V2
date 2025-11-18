@@ -2,15 +2,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copiar requirements DESDE LA RAÍZ hacia /app dentro del contenedor
+# Copiar requirements DESDE LA MISMA CARPETA donde está el Dockerfile
 COPY ../requirements.txt .
 
-# Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar todo el backend
+# Copiar el backend completo
 COPY . .
+
+# Copiar script de arranque
+RUN chmod +x start.sh
 
 EXPOSE 8000
 
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+# Usar start.sh como único punto de entrada
+CMD ["./start.sh"]
