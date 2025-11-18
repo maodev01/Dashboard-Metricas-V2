@@ -1,7 +1,12 @@
 from datetime import datetime
 
 from database import Base
-from sqlalchemy import Column, DateTime, Float, Integer, String, Text
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Float
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.sql import func
 
 
