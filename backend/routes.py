@@ -37,15 +37,15 @@ async def get_daily_weather(
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     else:
         parsed_date = date.today()
-    
+
     # Buscar registros del día específico
     weather = db.query(WeatherMetric).filter(
         func.date(WeatherMetric.date) == parsed_date
     ).order_by(WeatherMetric.date.desc()).first()
-    
+
     if not weather:
         raise HTTPException(status_code=404, detail=f"No weather data found for {parsed_date}")
-    
+
     return weather.to_dict()
 
 @router.get("/weather/range")
@@ -60,17 +60,17 @@ async def get_weather_range(
         end = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-    
+
     if end < start:
         raise HTTPException(status_code=400, detail="end_date must be after start_date")
-    
+
     weather_data = db.query(WeatherMetric).filter(
         and_(
             WeatherMetric.date >= start,
             WeatherMetric.date <= end
         )
     ).order_by(WeatherMetric.date.asc()).all()
-    
+
     return [w.to_dict() for w in weather_data]
 
 @router.post("/weather/collect")
@@ -95,13 +95,13 @@ async def collect_weather_now(
 @router.get("/crypto/latest")
 async def get_latest_crypto(db: Session = Depends(get_db)):
     from sqlalchemy import func
-    
+
     # Subconsulta para obtener la fecha máxima por símbolo
     subquery = db.query(
         CryptoMetric.symbol,
         func.max(CryptoMetric.date).label('max_date')
     ).group_by(CryptoMetric.symbol).subquery()
-    
+
     # Unir con la tabla principal para obtener los registros más recientes
     cryptos = db.query(CryptoMetric).join(
         subquery,
@@ -110,10 +110,10 @@ async def get_latest_crypto(db: Session = Depends(get_db)):
             CryptoMetric.date == subquery.c.max_date
         )
     ).order_by(CryptoMetric.market_cap_rank.asc()).limit(6).all()
-    
+
     if not cryptos:
         raise HTTPException(status_code=404, detail="No crypto data found")
-    
+
     return [c.to_dict() for c in cryptos]
 
 @router.get("/crypto/daily")
@@ -130,17 +130,17 @@ async def get_daily_crypto(
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     else:
         parsed_date = date.today()
-    
+
     query = db.query(CryptoMetric).filter(func.date(CryptoMetric.date) == parsed_date)
-    
+
     if symbol:
         query = query.filter(CryptoMetric.symbol == symbol.upper())
-    
+
     cryptos = query.order_by(CryptoMetric.market_cap_rank.asc()).all()
-    
+
     if not cryptos:
         raise HTTPException(status_code=404, detail=f"No crypto data found for {parsed_date}")
-    
+
     return [c.to_dict() for c in cryptos]
 
 @router.get("/crypto/range")
@@ -156,22 +156,22 @@ async def get_crypto_range(
         end = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-    
+
     if end < start:
         raise HTTPException(status_code=400, detail="end_date must be after start_date")
-    
+
     query = db.query(CryptoMetric).filter(
         and_(
             CryptoMetric.date >= start,
             CryptoMetric.date <= end
         )
     )
-    
+
     if symbol:
         query = query.filter(CryptoMetric.symbol == symbol.upper())
-    
+
     crypto_data = query.order_by(CryptoMetric.date.asc(), CryptoMetric.market_cap_rank.asc()).all()
-    
+
     return [c.to_dict() for c in crypto_data]
 
 @router.post("/crypto/collect")
@@ -195,12 +195,12 @@ async def collect_crypto_now(
 @router.get("/tfl/latest")
 async def get_latest_tfl(db: Session = Depends(get_db)):
     from sqlalchemy import func
-    
+
     subquery = db.query(
         TflMetric.line_id,
         func.max(TflMetric.date).label('max_date')
     ).group_by(TflMetric.line_id).subquery()
-    
+
     # Obtener el registro completo de cada línea con su fecha más reciente
     tfl_data = db.query(TflMetric).join(
         subquery,
@@ -209,10 +209,10 @@ async def get_latest_tfl(db: Session = Depends(get_db)):
             TflMetric.date == subquery.c.max_date
         )
     ).order_by(TflMetric.line_name.asc()).all()
-    
+
     if not tfl_data:
         raise HTTPException(status_code=404, detail="No TfL data found")
-    
+
     return [t.to_dict() for t in tfl_data]
 
 @router.get("/tfl/line/{line_id}")
@@ -224,10 +224,10 @@ async def get_tfl_line(
     tfl = db.query(TflMetric).filter(
         TflMetric.line_id == line_id
     ).order_by(TflMetric.date.desc()).first()
-    
+
     if not tfl:
         raise HTTPException(status_code=404, detail=f"No data found for line {line_id}")
-    
+
     return tfl.to_dict()
 
 @router.get("/tfl/range")
@@ -243,22 +243,22 @@ async def get_tfl_range(
         end = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-    
+
     if end < start:
         raise HTTPException(status_code=400, detail="end_date must be after start_date")
-    
+
     query = db.query(TflMetric).filter(
         and_(
             TflMetric.date >= start,
             TflMetric.date <= end
         )
     )
-    
+
     if line_id:
         query = query.filter(TflMetric.line_id == line_id)
-    
+
     tfl_data = query.order_by(TflMetric.date.asc()).all()
-    
+
     return [t.to_dict() for t in tfl_data]
 
 @router.post("/tfl/collect")
@@ -293,11 +293,11 @@ async def get_summary_stats(db: Session = Depends(get_db)):
     weather_count = db.query(func.count(WeatherMetric.id)).scalar()
     crypto_count = db.query(func.count(CryptoMetric.id)).scalar()
     tfl_count = db.query(func.count(TflMetric.id)).scalar()  # CAMBIO AQUÍ
-    
+
     latest_weather = db.query(WeatherMetric).order_by(WeatherMetric.date.desc()).first()
     latest_crypto = db.query(CryptoMetric).order_by(CryptoMetric.date.desc()).first()
     latest_tfl = db.query(TflMetric).order_by(TflMetric.date.desc()).first()  # CAMBIO AQUÍ
-    
+
     return {
         "total_records": {
             "weather": weather_count,

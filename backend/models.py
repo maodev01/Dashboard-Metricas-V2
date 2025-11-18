@@ -5,7 +5,7 @@ from datetime import datetime
 
 class WeatherMetric(Base):
     __tablename__ = "weather_metrics"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.utcnow, index=True)
     city = Column(String(100))
@@ -43,7 +43,7 @@ class WeatherMetric(Base):
 
 class CryptoMetric(Base):
     __tablename__ = "crypto_metrics"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.utcnow, index=True)
     symbol = Column(String(10), index=True)  # BTC, ETH, etc.
@@ -80,7 +80,7 @@ class CryptoMetric(Base):
 
 class TflMetric(Base):
     __tablename__ = "tfl_metrics"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.utcnow, index=True)
     line_id = Column(String(50), index=True)  # ej: "victoria", "central"

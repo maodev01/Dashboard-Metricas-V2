@@ -21,25 +21,25 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     logger.info("Iniciando aplicación...")
-    
+
     # Inicializar base de datos
     logger.info("Inicializando base de datos...")
     init_db()
     logger.info("Base de datos inicializada")
-    
+
     # Iniciar scheduler
     logger.info("Iniciando scheduler de métricas...")
     metrics_scheduler.start()
     logger.info("Scheduler iniciado")
-    
+
     # Colectar métricas iniciales (opcional, comentar si no se desea)
     # logger.info("Colectando métricas iniciales...")
     # metrics_scheduler.run_now()
-    
+
     logger.info("Aplicación iniciada exitosamente")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Deteniendo aplicación...")
     metrics_scheduler.stop()

@@ -20,14 +20,14 @@ def migrate():
             logger.info("✅ Tabla nasa_metrics eliminada")
         else:
             logger.info("ℹ️  Tabla nasa_metrics no existe")
-        
+
         # Crear nueva tabla tfl_metrics
         logger.info("Creando tabla tfl_metrics...")
         TflMetric.__table__.create(engine, checkfirst=True)
         logger.info("✅ Tabla tfl_metrics creada")
-        
+
         logger.info("🎉 Migración completada exitosamente")
-        
+
     except Exception as e:
         logger.error(f"❌ Error en migración: {str(e)}")
         raise

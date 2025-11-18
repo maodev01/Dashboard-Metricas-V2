@@ -140,7 +140,7 @@ def test_get_weather_range(sample_weather_data):
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     tomorrow = today + timedelta(days=1)
-    
+
     response = client.get(
         f"/api/weather/range?start_date={yesterday}&end_date={tomorrow}"
     )
@@ -177,7 +177,7 @@ def test_get_crypto_range(sample_crypto_data):
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     tomorrow = today + timedelta(days=1)
-    
+
     response = client.get(
         f"/api/crypto/range?start_date={yesterday}&end_date={tomorrow}"
     )
