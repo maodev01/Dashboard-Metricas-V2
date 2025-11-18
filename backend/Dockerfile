@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copiar requirements DESDE LA MISMA CARPETA donde está el Dockerfile
-COPY ../requirements.txt .
+COPY /requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
