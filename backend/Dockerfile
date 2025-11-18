@@ -2,18 +2,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copiar requirements DESDE LA MISMA CARPETA donde está el Dockerfile
-COPY /requirements.txt .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el backend completo
-COPY . .
+# Copiar solo la carpeta backend dentro del contenedor
+COPY backend/ ./backend/
 
-# Copiar script de arranque
+# Copiar start.sh
+COPY backend/start.sh .
 RUN chmod +x start.sh
 
 EXPOSE 8000
 
-# Usar start.sh como único punto de entrada
 CMD ["./start.sh"]
