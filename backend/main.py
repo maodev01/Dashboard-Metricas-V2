@@ -5,11 +5,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import init_db
-from routes import router
-from scheduler import metrics_scheduler
-
-from .config import settings
+from backend.config import settings
+from backend.database import init_db
+from backend.routes import router
+from backend.scheduler import metrics_scheduler
 
 # Configurar logging
 logging.basicConfig(
