@@ -66,13 +66,14 @@ class MetricsScheduler:
         self.scheduler.add_job(
             self.collect_all_metrics,
             trigger=trigger,
-            id='periodic_metrics_collection',
-            name=f'Colección de métricas cada {settings.COLLECTION_INTERVAL_MINUTES} minutos',
-            replace_existing=True
+            id="periodic_metrics_collection",
+            name=f"Colección de métricas cada {settings.COLLECTION_INTERVAL_MINUTES} minutos",
+            replace_existing=True,
         )
 
         logger.info(
-            f"⏰ Scheduler configurado para ejecutar cada {settings.COLLECTION_INTERVAL_MINUTES} minutos")
+            f"⏰ Scheduler configurado para ejecutar cada {settings.COLLECTION_INTERVAL_MINUTES} minutos"
+        )
 
         # Ejecutar una colección inicial inmediata
         logger.info("🚀 Ejecutando colección inicial...")

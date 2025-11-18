@@ -51,7 +51,9 @@ class TflCollector:
                     .first()
                 )
 
-                if existing and existing.status_severity == status.get("statusSeverity", 0):
+                if existing and existing.status_severity == status.get(
+                    "statusSeverity", 0
+                ):
                     logger.info(f"Línea {line_name}: sin cambios, omitiendo.")
                     continue
 
@@ -82,7 +84,9 @@ class TflCollector:
                 for metric in metrics:
                     db.refresh(metric)
 
-                logger.info(f"Estado de {len(metrics)} líneas TfL guardado exitosamente")
+                logger.info(
+                    f"Estado de {len(metrics)} líneas TfL guardado exitosamente"
+                )
             else:
                 logger.info("No hay cambios en líneas TfL.")
 
@@ -151,7 +155,9 @@ class TflCollector:
     # ============================================================
     # 3. COLECTAR ESTADO DE CARRETERAS
     # ============================================================
-    def collect_road_status(self, db: Session, road_ids: List[str]) -> List[Dict[str, Any]]:
+    def collect_road_status(
+        self, db: Session, road_ids: List[str]
+    ) -> List[Dict[str, Any]]:
         metrics: List[Dict[str, Any]] = []
 
         try:
@@ -172,7 +178,9 @@ class TflCollector:
                     "id": data.get("id", road_id),
                     "displayName": data.get("displayName", ""),
                     "statusSeverity": data.get("statusSeverity", 0),
-                    "statusSeverityDescription": data.get("statusSeverityDescription", ""),
+                    "statusSeverityDescription": data.get(
+                        "statusSeverityDescription", ""
+                    ),
                     "created": data.get("created", ""),
                     "modified": data.get("modified", ""),
                     "direction": data.get("direction", ""),

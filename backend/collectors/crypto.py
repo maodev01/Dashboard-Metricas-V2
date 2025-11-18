@@ -14,15 +14,23 @@ class CryptoCollector:
         # CoinGecko API no requiere API key para uso básico
         pass
 
-    def collect_crypto(self, db: Session, crypto_ids: list = None) -> list[CryptoMetric]:
+    def collect_crypto(
+        self, db: Session, crypto_ids: list = None
+    ) -> list[CryptoMetric]:
         """
         Colecta datos de criptomonedas y los guarda en la base de datos
         Por defecto colecta solo las 6 principales
         """
         if crypto_ids is None:
             # Solo las 6 más importantes por market cap
-            crypto_ids = ["bitcoin", "ethereum", "cardano",
-                          "solana", "binancecoin", "ripple"]
+            crypto_ids = [
+                "bitcoin",
+                "ethereum",
+                "cardano",
+                "solana",
+                "binancecoin",
+                "ripple",
+            ]
 
         # Limitar a máximo 6 criptos
         crypto_ids = crypto_ids[:6]
@@ -41,7 +49,7 @@ class CryptoCollector:
                 "per_page": len(crypto_ids),
                 "page": 1,
                 "sparkline": False,
-                "locale": "en"
+                "locale": "en",
             }
 
             logger.info(f"Colectando datos de criptomonedas: {crypto_ids}")
@@ -63,9 +71,10 @@ class CryptoCollector:
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
                     price_change_percentage_24h=coin.get(
-                        "price_change_percentage_24h", 0),
+                        "price_change_percentage_24h", 0
+                    ),
                     circulating_supply=coin.get("circulating_supply", 0),
-                    total_supply=coin.get("total_supply", 0)
+                    total_supply=coin.get("total_supply", 0),
                 )
 
                 db.add(crypto_metric)
@@ -76,8 +85,7 @@ class CryptoCollector:
             for metric in metrics:
                 db.refresh(metric)
 
-            logger.info(
-                f"Datos de {len(metrics)} criptomonedas guardados exitosamente")
+            logger.info(f"Datos de {len(metrics)} criptomonedas guardados exitosamente")
             return metrics
 
         except requests.exceptions.RequestException as e:
@@ -102,7 +110,7 @@ class CryptoCollector:
                 "per_page": limit,
                 "page": 1,
                 "sparkline": False,
-                "locale": "en"
+                "locale": "en",
             }
 
             logger.info(f"Colectando top {limit} criptomonedas")
@@ -125,9 +133,10 @@ class CryptoCollector:
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
                     price_change_percentage_24h=coin.get(
-                        "price_change_percentage_24h", 0),
+                        "price_change_percentage_24h", 0
+                    ),
                     circulating_supply=coin.get("circulating_supply", 0),
-                    total_supply=coin.get("total_supply", 0)
+                    total_supply=coin.get("total_supply", 0),
                 )
 
                 db.add(crypto_metric)
@@ -138,8 +147,7 @@ class CryptoCollector:
             for metric in metrics:
                 db.refresh(metric)
 
-            logger.info(
-                f"Top {len(metrics)} criptomonedas guardadas exitosamente")
+            logger.info(f"Top {len(metrics)} criptomonedas guardadas exitosamente")
             return metrics
 
         except Exception as e:

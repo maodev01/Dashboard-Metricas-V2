@@ -6,8 +6,9 @@ from config import settings
 # Crear engine
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args={
-        "check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    connect_args=(
+        {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    ),
 )
 
 # Crear SessionLocal
@@ -25,6 +26,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Función para inicializar la base de datos
 

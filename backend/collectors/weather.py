@@ -14,7 +14,9 @@ class WeatherCollector:
     def __init__(self, api_key: str = None):
         self.api_key = api_key or settings.OPENWEATHER_API_KEY
 
-    def collect_weather(self, db: Session, city: str = None, country: str = None) -> WeatherMetric:
+    def collect_weather(
+        self, db: Session, city: str = None, country: str = None
+    ) -> WeatherMetric:
         """
         Colecta datos del clima actual y los guarda en la base de datos
         """
@@ -25,7 +27,7 @@ class WeatherCollector:
             params = {
                 "q": f"{city},{country}",
                 "appid": self.api_key,
-                "units": "metric"  # Celsius
+                "units": "metric",  # Celsius
             }
 
             logger.info(f"Colectando datos del clima para {city}, {country}")
@@ -48,7 +50,7 @@ class WeatherCollector:
                 weather_main=data["weather"][0]["main"],
                 weather_description=data["weather"][0]["description"],
                 wind_speed=data["wind"]["speed"],
-                clouds=data["clouds"]["all"]
+                clouds=data["clouds"]["all"],
             )
 
             # Guardar en la base de datos
@@ -57,7 +59,8 @@ class WeatherCollector:
             db.refresh(weather_metric)
 
             logger.info(
-                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
+                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}"
+            )
             return weather_metric
 
         except requests.exceptions.RequestException as e:
@@ -73,7 +76,9 @@ class WeatherCollector:
             db.rollback()
             raise
 
-    def collect_weather_by_coords(self, db: Session, lat: float = None, lon: float = None) -> WeatherMetric:
+    def collect_weather_by_coords(
+        self, db: Session, lat: float = None, lon: float = None
+    ) -> WeatherMetric:
         """
         Colecta datos del clima usando coordenadas
         """
@@ -81,15 +86,9 @@ class WeatherCollector:
         lon = lon or settings.DEFAULT_LON
 
         try:
-            params = {
-                "lat": lat,
-                "lon": lon,
-                "appid": self.api_key,
-                "units": "metric"
-            }
+            params = {"lat": lat, "lon": lon, "appid": self.api_key, "units": "metric"}
 
-            logger.info(
-                f"Colectando datos del clima para coordenadas: {lat}, {lon}")
+            logger.info(f"Colectando datos del clima para coordenadas: {lat}, {lon}")
             response = requests.get(self.BASE_URL, params=params, timeout=10)
             response.raise_for_status()
 
@@ -108,7 +107,7 @@ class WeatherCollector:
                 weather_main=data["weather"][0]["main"],
                 weather_description=data["weather"][0]["description"],
                 wind_speed=data["wind"]["speed"],
-                clouds=data["clouds"]["all"]
+                clouds=data["clouds"]["all"],
             )
 
             db.add(weather_metric)
@@ -116,11 +115,11 @@ class WeatherCollector:
             db.refresh(weather_metric)
 
             logger.info(
-                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}")
+                f"Datos del clima guardados exitosamente. ID: {weather_metric.id}"
+            )
             return weather_metric
 
         except Exception as e:
-            logger.error(
-                f"Error al colectar datos del clima por coordenadas: {str(e)}")
+            logger.error(f"Error al colectar datos del clima por coordenadas: {str(e)}")
             db.rollback()
             raise

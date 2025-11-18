@@ -38,7 +38,7 @@ class WeatherMetric(Base):
             "weather_main": self.weather_main,
             "weather_description": self.weather_description,
             "wind_speed": self.wind_speed,
-            "clouds": self.clouds
+            "clouds": self.clouds,
         }
 
 
@@ -76,7 +76,7 @@ class CryptoMetric(Base):
             "price_change_24h": self.price_change_24h,
             "price_change_percentage_24h": self.price_change_percentage_24h,
             "circulating_supply": self.circulating_supply,
-            "total_supply": self.total_supply
+            "total_supply": self.total_supply,
         }
 
 
@@ -88,8 +88,7 @@ class TflMetric(Base):
     line_id = Column(String(50), index=True)  # ej: "victoria", "central"
     line_name = Column(String(100))
     status_severity = Column(Integer)  # 0-20 (10=Good Service)
-    status_severity_description = Column(
-        String(50))  # "Good Service", "Minor Delays"
+    status_severity_description = Column(String(50))  # "Good Service", "Minor Delays"
     reason = Column(Text, nullable=True)  # Razón del estado
     disruption_category = Column(String(100), nullable=True)
     closure_text = Column(Text, nullable=True)
@@ -105,5 +104,5 @@ class TflMetric(Base):
             "status_severity_description": self.status_severity_description,
             "reason": self.reason,
             "disruption_category": self.disruption_category,
-            "closure_text": self.closure_text
+            "closure_text": self.closure_text,
         }

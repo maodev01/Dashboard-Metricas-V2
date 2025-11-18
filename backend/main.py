@@ -9,8 +9,7 @@ from scheduler import metrics_scheduler
 
 # Configurar logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,12 +45,13 @@ async def lifespan(app: FastAPI):
     metrics_scheduler.stop()
     logger.info("Aplicación detenida")
 
+
 # Crear aplicación FastAPI
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="API para dashboard de métricas con datos de clima, criptomonedas y NASA",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Configurar CORS
@@ -80,25 +80,24 @@ async def root():
                 "latest": "/api/weather/latest",
                 "daily": "/api/weather/daily?target_date=YYYY-MM-DD",
                 "range": "/api/weather/range?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD",
-                "collect": "/api/weather/collect (POST)"
+                "collect": "/api/weather/collect (POST)",
             },
             "crypto": {
                 "latest": "/api/crypto/latest",
                 "daily": "/api/crypto/daily?target_date=YYYY-MM-DD&symbol=BTC",
                 "range": "/api/crypto/range?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&symbol=BTC",
-                "collect": "/api/crypto/collect (POST)"
+                "collect": "/api/crypto/collect (POST)",
             },
             "nasa": {
                 "latest": "/api/nasa/latest",
                 "daily": "/api/nasa/daily?target_date=YYYY-MM-DD",
                 "range": "/api/nasa/range?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD",
-                "collect": "/api/nasa/collect (POST)"
+                "collect": "/api/nasa/collect (POST)",
             },
-            "stats": {
-                "summary": "/api/stats/summary"
-            }
-        }
+            "stats": {"summary": "/api/stats/summary"},
+        },
     }
+
 
 # Health check
 
@@ -108,14 +107,11 @@ async def health_check():
     return {
         "status": "healthy",
         "app_name": settings.APP_NAME,
-        "version": settings.APP_VERSION
+        "version": settings.APP_VERSION,
     }
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG
-    )
+
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=settings.DEBUG)

@@ -10,10 +10,10 @@ from models import WeatherMetric, CryptoMetric, NasaMetric
 
 # Configurar base de datos de prueba
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL,
-                       connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(
+    SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False}
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
@@ -63,7 +63,7 @@ def sample_weather_data(db_session):
         weather_main="Clear",
         weather_description="clear sky",
         wind_speed=5.0,
-        clouds=10
+        clouds=10,
     )
     db_session.add(weather)
     db_session.commit()
@@ -87,7 +87,7 @@ def sample_crypto_data(db_session):
         price_change_24h=1000.0,
         price_change_percentage_24h=2.0,
         circulating_supply=19000000,
-        total_supply=21000000
+        total_supply=21000000,
     )
     db_session.add(crypto)
     db_session.commit()
@@ -106,12 +106,13 @@ def sample_nasa_data(db_session):
         url="https://example.com/image.jpg",
         hdurl="https://example.com/image_hd.jpg",
         media_type="image",
-        copyright="Test Copyright"
+        copyright="Test Copyright",
     )
     db_session.add(nasa)
     db_session.commit()
     db_session.refresh(nasa)
     return nasa
+
 
 # ==================== TESTS DE ENDPOINTS PRINCIPALES ====================
 
@@ -131,6 +132,7 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
+
 
 # ==================== TESTS DE WEATHER ====================
 
@@ -167,10 +169,9 @@ def test_get_weather_range(sample_weather_data):
 
 def test_get_weather_range_invalid_dates():
     """Test con fechas inválidas"""
-    response = client.get(
-        "/api/weather/range?start_date=invalid&end_date=invalid"
-    )
+    response = client.get("/api/weather/range?start_date=invalid&end_date=invalid")
     assert response.status_code == 400
+
 
 # ==================== TESTS DE CRYPTO ====================
 
@@ -215,6 +216,7 @@ def test_get_crypto_by_symbol(sample_crypto_data):
     if len(data) > 0:
         assert data[0]["symbol"] == "BTC"
 
+
 # ==================== TESTS DE NASA ====================
 
 
@@ -235,12 +237,11 @@ def test_get_latest_nasa(sample_nasa_data):
 
 def test_get_nasa_range(sample_nasa_data):
     """Test obtener NASA en rango de fechas"""
-    response = client.get(
-        "/api/nasa/range?start_date=2024-01-01&end_date=2024-01-02"
-    )
+    response = client.get("/api/nasa/range?start_date=2024-01-01&end_date=2024-01-02")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
+
 
 # ==================== TESTS DE STATS ====================
 
@@ -255,6 +256,7 @@ def test_get_stats_summary(sample_weather_data, sample_crypto_data, sample_nasa_
     assert data["total_records"]["weather"] >= 1
     assert data["total_records"]["crypto"] >= 1
     assert data["total_records"]["nasa"] >= 1
+
 
 # ==================== TESTS DE MODELOS ====================
 
@@ -283,6 +285,7 @@ def test_nasa_model_to_dict(sample_nasa_data):
     assert isinstance(data, dict)
     assert "title" in data
     assert data["title"] == "Test APOD"
+
 
 # ==================== CLEANUP ====================
 

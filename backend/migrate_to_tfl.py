@@ -16,8 +16,8 @@ def migrate():
         # Eliminar tabla nasa_metrics si existe
         logger.info("Eliminando tabla nasa_metrics...")
         Base.metadata.reflect(bind=engine)
-        if 'nasa_metrics' in Base.metadata.tables:
-            Base.metadata.tables['nasa_metrics'].drop(engine)
+        if "nasa_metrics" in Base.metadata.tables:
+            Base.metadata.tables["nasa_metrics"].drop(engine)
             logger.info("✅ Tabla nasa_metrics eliminada")
         else:
             logger.info("ℹ️  Tabla nasa_metrics no existe")
