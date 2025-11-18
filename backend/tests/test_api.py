@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.database import Base, get_db
 from backend.main import app
-from backend.models import CryptoMetric, WeatherMetric, TflMetric
+from backend.models import CryptoMetric, TflMetric, WeatherMetric
 
 # --- Configuración Base de Datos Test ---
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"

@@ -1,13 +1,10 @@
 import logging
-
 from datetime import datetime
 
 import requests
-
-from sqlalchemy.orm import Session
-
 from config import settings
 from models import WeatherMetric
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 

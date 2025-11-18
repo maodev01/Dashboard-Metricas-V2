@@ -1,13 +1,10 @@
 import logging
-
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
 import requests
-
-from sqlalchemy.orm import Session
-
 from models import TflMetric
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
