@@ -3,9 +3,10 @@ Script de migración: NASA → TfL
 Elimina tabla nasa_metrics y crea tabla tfl_metrics
 """
 
-from database import engine, Base
-from models import TflMetric
 import logging
+
+from database import Base, engine
+from models import TflMetric
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

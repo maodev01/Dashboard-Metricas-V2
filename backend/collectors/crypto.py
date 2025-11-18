@@ -1,8 +1,9 @@
-import requests
 import logging
 from datetime import datetime
-from sqlalchemy.orm import Session
+
+import requests
 from models import CryptoMetric
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 

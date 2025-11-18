@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, Text
-from sqlalchemy.sql import func
-from database import Base
 from datetime import datetime
+
+from database import Base
+from sqlalchemy import Column, DateTime, Float, Integer, String, Text
+from sqlalchemy.sql import func
 
 
 class WeatherMetric(Base):

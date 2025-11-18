@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
+
 from config import settings
 from database import init_db
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routes import router
 from scheduler import metrics_scheduler
 

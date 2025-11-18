@@ -1,9 +1,10 @@
-import requests
 import logging
 from datetime import datetime
-from sqlalchemy.orm import Session
-from models import WeatherMetric
+
+import requests
 from config import settings
+from models import WeatherMetric
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
