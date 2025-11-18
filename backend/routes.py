@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from typing import List, Optional
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from database import get_db
 from models import WeatherMetric, CryptoMetric, TflMetric
 from collectors.weather import WeatherCollector
