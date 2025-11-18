@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
 
 import pytest
-from database import Base, get_db
+
 from fastapi.testclient import TestClient
-from main import app
-from models import CryptoMetric, NasaMetric, WeatherMetric
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from database import Base, get_db
+from main import app
+from models import CryptoMetric, NasaMetric, WeatherMetric
 
 # Configurar base de datos de prueba
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"

@@ -2,6 +2,7 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
 from collectors.crypto import CryptoCollector
 from collectors.tfl import TflCollector
 from collectors.weather import WeatherCollector

@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from database import Base
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text
 from sqlalchemy.sql import func
+
+from database import Base
 
 
 class WeatherMetric(Base):
