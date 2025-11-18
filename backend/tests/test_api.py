@@ -168,9 +168,7 @@ def test_get_latest_crypto(sample_crypto_data):
 
 def test_get_crypto_range(sample_crypto_data):
     today = datetime.now().date()
-    response = client.get(
-        f"/api/crypto/range?start_date={today}&end_date={today}"
-    )
+    response = client.get(f"/api/crypto/range?start_date={today}&end_date={today}")
     assert response.status_code == 200
 
 
@@ -197,9 +195,7 @@ def test_get_latest_tfl(sample_tfl_data):
 
 def test_get_tfl_range(sample_tfl_data):
     today = datetime.now().date()
-    response = client.get(
-        f"/api/tfl/range?start_date={today}&end_date={today}"
-    )
+    response = client.get(f"/api/tfl/range?start_date={today}&end_date={today}")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
