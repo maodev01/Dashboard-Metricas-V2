@@ -5,8 +5,7 @@ Elimina tabla nasa_metrics y crea tabla tfl_metrics
 
 import logging
 
-from database import Base
-from database import engine
+from database import Base, engine
 from models import TflMetric
 
 logging.basicConfig(level=logging.INFO)

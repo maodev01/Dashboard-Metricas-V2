@@ -1,22 +1,14 @@
 import logging
-from datetime import date
-from datetime import datetime
-from typing import List
-from typing import Optional
+from datetime import date, datetime
+from typing import List, Optional
 
 from collectors.crypto import CryptoCollector
 from collectors.tfl import TflCollector
 from collectors.weather import WeatherCollector
 from database import get_db
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import Query
-from models import CryptoMetric
-from models import TflMetric
-from models import WeatherMetric
-from sqlalchemy import and_
-from sqlalchemy import func
+from fastapi import APIRouter, Depends, HTTPException, Query
+from models import CryptoMetric, TflMetric, WeatherMetric
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)

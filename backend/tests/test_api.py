@@ -1,14 +1,10 @@
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
-from database import Base
-from database import get_db
+from database import Base, get_db
 from fastapi.testclient import TestClient
 from main import app
-from models import CryptoMetric
-from models import NasaMetric
-from models import WeatherMetric
+from models import CryptoMetric, NasaMetric, WeatherMetric
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
