@@ -9,9 +9,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar backend
 COPY backend ./backend
 
-# Copiar .env a /app
-COPY .env .
-
 COPY start.sh .
 RUN chmod +x start.sh
 
