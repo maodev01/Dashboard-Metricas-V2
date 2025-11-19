@@ -8,11 +8,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from collectors.crypto import CryptoCollector
-from collectors.tfl import TflCollector
-from collectors.weather import WeatherCollector
+from backend.collectors.crypto import CryptoCollector
+from backend.collectors.tfl import TflCollector
+from backend.collectors.weather import WeatherCollector
 from database import get_db
-from models import CryptoMetric, TflMetric, WeatherMetric
+from backend.models import CryptoMetric, TflMetric, WeatherMetric
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import requests
 from sqlalchemy.orm import Session
 
 from config import settings
-from models import WeatherMetric
+from ..models import WeatherMetric
 
 logger = logging.getLogger(__name__)
 

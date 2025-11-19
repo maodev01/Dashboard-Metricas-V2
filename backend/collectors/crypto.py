@@ -1,15 +1,10 @@
-import logging
-
-from datetime import datetime
-
 import requests
-
+import logging
+from datetime import datetime
 from sqlalchemy.orm import Session
-
-from models import CryptoMetric
+from ..models import CryptoMetric
 
 logger = logging.getLogger(__name__)
-
 
 class CryptoCollector:
     BASE_URL = "https://api.coingecko.com/api/v3"
@@ -18,23 +13,11 @@ class CryptoCollector:
         # CoinGecko API no requiere API key para uso básico
         pass
 
-    def collect_crypto(
-        self, db: Session, crypto_ids: list = None
-    ) -> list[CryptoMetric]:
-        """
-        Colecta datos de criptomonedas y los guarda en la base de datos
-        Por defecto colecta solo las 6 principales
-        """
+    def collect_crypto(self, db: Session, crypto_ids: list = None) -> list[CryptoMetric]:
+
         if crypto_ids is None:
             # Solo las 6 más importantes por market cap
-            crypto_ids = [
-                "bitcoin",
-                "ethereum",
-                "cardano",
-                "solana",
-                "binancecoin",
-                "ripple",
-            ]
+            crypto_ids = ["bitcoin", "ethereum", "cardano", "solana", "binancecoin", "ripple"]
 
         # Limitar a máximo 6 criptos
         crypto_ids = crypto_ids[:6]
@@ -53,7 +36,7 @@ class CryptoCollector:
                 "per_page": len(crypto_ids),
                 "page": 1,
                 "sparkline": False,
-                "locale": "en",
+                "locale": "en"
             }
 
             logger.info(f"Colectando datos de criptomonedas: {crypto_ids}")
@@ -74,11 +57,9 @@ class CryptoCollector:
                     high_24h=coin.get("high_24h", 0),
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
-                    price_change_percentage_24h=coin.get(
-                        "price_change_percentage_24h", 0
-                    ),
+                    price_change_percentage_24h=coin.get("price_change_percentage_24h", 0),
                     circulating_supply=coin.get("circulating_supply", 0),
-                    total_supply=coin.get("total_supply", 0),
+                    total_supply=coin.get("total_supply", 0)
                 )
 
                 db.add(crypto_metric)
@@ -114,7 +95,7 @@ class CryptoCollector:
                 "per_page": limit,
                 "page": 1,
                 "sparkline": False,
-                "locale": "en",
+                "locale": "en"
             }
 
             logger.info(f"Colectando top {limit} criptomonedas")
@@ -136,11 +117,9 @@ class CryptoCollector:
                     high_24h=coin.get("high_24h", 0),
                     low_24h=coin.get("low_24h", 0),
                     price_change_24h=coin.get("price_change_24h", 0),
-                    price_change_percentage_24h=coin.get(
-                        "price_change_percentage_24h", 0
-                    ),
+                    price_change_percentage_24h=coin.get("price_change_percentage_24h", 0),
                     circulating_supply=coin.get("circulating_supply", 0),
-                    total_supply=coin.get("total_supply", 0),
+                    total_supply=coin.get("total_supply", 0)
                 )
 
                 db.add(crypto_metric)

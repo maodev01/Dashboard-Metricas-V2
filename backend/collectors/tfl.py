@@ -7,7 +7,7 @@ import requests
 
 from sqlalchemy.orm import Session
 
-from models import TflMetric
+from ..models import TflMetric
 
 logger = logging.getLogger(__name__)
 

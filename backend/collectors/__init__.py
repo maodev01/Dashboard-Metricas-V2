@@ -1,7 +1,7 @@
 # backend/collectors/__init__.py
 
-from .crypto import CryptoCollector
-from .tfl import TflCollector
-from .weather import WeatherCollector
+from backend.collectors.crypto import CryptoCollector
+from backend.collectors.weather import WeatherCollector
+from backend.collectors.tfl import TflCollector
 
 __all__ = ["WeatherCollector", "CryptoCollector", "TflCollector"]
